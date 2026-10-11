@@ -1,0 +1,43 @@
+<section class="mybet">
+ <div class="breadcrumb-line"><a routerLink="/admin/mybet">MyBetLive</a><span>/</span><a [routerLink]="listPath">{{isSport?'Deportes':'Ligas'}}</a><span>/</span><span>{{id?'Editar':'Crear'}}</span></div>
+ <div class="toolbar"><div><h1>{{id?'Editar':'Crear'}} {{isSport?'deporte':'liga'}}</h1><p class="text-muted mb-0">{{isSport?'Nombre, descripción y disponibilidad del deporte.':'Deporte, nombre, país y disponibilidad de la liga.'}}</p></div><a class="btn btn-outline-secondary" [routerLink]="listPath">Volver al listado</a></div>
+ @if(error()){<div class="alert alert-danger" role="alert">{{error()}}</div>}
+ @if(busy()){<div class="progress mb-3" role="status" aria-label="Cargando"><div class="progress-bar w-100"></div></div>}
+ @if(!isSport&&!id){
+  <article class="panel mb-4">
+   <label for="league-sport" class="form-label">Deporte</label>
+   <select id="league-sport" class="form-select" [formControl]="form.controls.sportCode" (change)="sportChanged()"><option value="">Selecciona un deporte</option>@for(sport of sports();track sport.code){<option [value]="sport.code">{{sport.name}} ({{sport.code}})</option>}</select>
+   @if(form.controls.sportCode.value==='SOCCER'){
+    <h3 class="mt-4">Ligas de API-Football</h3><p>Filtra y selecciona la liga. Sus datos se completan automáticamente; solo se habilita al guardar.</p>
+    @if(discovering()){<p role="status">Cargando catálogo…</p>}
+    @if(discoveryError()){<div class="alert alert-danger" role="alert">{{discoveryError()}} <button type="button" class="btn btn-outline-secondary btn-sm" (click)="loadAvailable()">Reintentar</button></div>}
+    <div class="row g-3"><div class="col-md-6"><label class="form-label" for="league-country-filter">País</label><select id="league-country-filter" class="form-select" [(ngModel)]="countryFilter"><option value="">Todos los países</option>@for(country of countries();track country){<option [value]="country">{{country}}</option>}</select></div>
+    <div class="col-md-6"><label class="form-label" for="league-filter">Buscar por nombre o país</label><input id="league-filter" class="form-control" [(ngModel)]="query" placeholder="Liga MX, Mexico, Premier…"></div>
+    <div class="col-12"><label class="form-label" for="available-league">Liga</label><select id="available-league" class="form-select" [value]="form.controls.externalId.value??''" (change)="chooseAvailable($event)" [disabled]="discovering()"><option value="">Selecciona una liga</option>@for(item of filteredAvailable();track item.id){<option [value]="item.id" [disabled]="isRegistered(item.id)">{{item.country}} · {{item.name}}{{isRegistered(item.id)?' · Ya registrada':''}}</option>}</select></div></div>
+    @if(!discovering()&&!discoveryError()&&filteredAvailable().length===0){<p class="mt-3" role="status">No hay ligas que coincidan con los filtros.</p>}
+    <small class="d-block mt-3 text-muted">Catálogo compartido durante 24 horas. Filtrar no consume solicitudes. Las ligas registradas se habilitan desde el listado.</small>
+    @if(selectedSport()&&!selectedSport()!.enabled){<p class="alert alert-warning mt-3">También debes habilitar Fútbol en Deportes para que sus ligas aparezcan en la app.</p>}
+   }@else if(selectedIntegration()?.leagueDiscovery){
+    <h3 class="mt-4">Buscar liga</h3><p>Selecciona una liga del proveedor para completar sus datos.</p>
+    <form class="search" (ngSubmit)="search()"><label class="visually-hidden" for="league-query">Buscar liga</label><input id="league-query" class="form-control" name="query" [(ngModel)]="query" placeholder="Liga MX, Premier, Serie B…" maxlength="60"><button class="btn btn-dark" [disabled]="busy()||query.trim().length<3">Buscar</button></form>
+    @for(item of results();track item.id){<div class="sport"><span><b>{{item.name}}</b><small class="d-block">{{item.country}} · ID {{item.id}}</small></span><button type="button" class="btn btn-outline-dark btn-sm" (click)="selectLeague(item)">Seleccionar liga</button></div>}
+   }
+  </article>
+ }
+ <div class="form-workspace"><form class="panel" [formGroup]="form" (ngSubmit)="save()">
+  <div class="row g-3">
+   @if(isSport){<div class="col-md-4"><label class="form-label" for="sport-code">Código</label><input id="sport-code" class="form-control" formControlName="code" maxlength="60" placeholder="Ej. HOCKEY"><small class="text-muted">Mayúsculas y guiones bajos. Inmutable al crear.</small></div>}
+   @else if(id){<div class="col-md-4"><label class="form-label" for="edit-league-sport">Deporte</label><select id="edit-league-sport" class="form-select" formControlName="sportCode">@for(sport of sports();track sport.code){<option [value]="sport.code">{{sport.name}}</option>}</select></div>}
+   <div class="col-md-8"><label class="form-label" for="catalog-name">Nombre</label><input id="catalog-name" class="form-control" formControlName="name" [readOnly]="!isSport&&!id&&form.controls.sportCode.value==='SOCCER'" [maxlength]="isSport?120:160"></div>
+   @if(isSport){<div class="col-12"><label class="form-label" for="sport-description">Descripción</label><textarea id="sport-description" class="form-control" formControlName="description" rows="3" maxlength="2000"></textarea></div>}
+   @else{
+    <div class="col-md-6"><label class="form-label" for="league-country">País</label><input id="league-country" class="form-control" formControlName="country" [readOnly]="!id&&form.controls.sportCode.value==='SOCCER'" maxlength="100"></div>
+    @if(selectedSport()?.integrated){<div class="col-md-6"><label class="form-label" for="league-external">Identificador de la liga</label><input id="league-external" class="form-control" type="number" min="1" formControlName="externalId" [readOnly]="form.controls.sportCode.value==='SOCCER'||form.controls.sportCode.value==='NFL'||form.controls.sportCode.value==='MLB'||form.controls.sportCode.value==='NBA'||form.controls.sportCode.value==='NHL'"><small class="text-muted">NFL, MLB y NBA utilizan la liga 1; NHL utiliza la 57. Fútbol valida el ID con su proveedor.</small></div>}
+   }
+   <div class="col-12"><label class="form-check"><input class="form-check-input" type="checkbox" formControlName="enabled"><span class="form-check-label">{{isSport?'Habilitado en la app':'Liga habilitada en la app'}}</span></label></div>
+  </div>
+  <p class="small text-muted mt-3">Los deportes futuros y sus ligas pueden prepararse como borradores. Se habilitan cuando su integración esté disponible. Deshabilitar conserva los seguimientos existentes.</p>
+  @if(form.touched&&form.invalid){<p class="text-danger" role="alert">Completa los campos obligatorios y revisa sus límites.</p>}
+  <div class="form-actions"><button class="btn btn-dark" [disabled]="busy()||!ready()">Guardar {{isSport?'deporte':'liga'}}</button><a class="btn btn-outline-secondary" [routerLink]="listPath">Cancelar</a></div>
+ </form><aside class="panel form-context"><h2>Catálogo e integración</h2><p>Habilitar un deporte o una liga no configura sus credenciales ni cambia el proveedor.</p><p>Deshabilitar conserva los seguimientos existentes.</p></aside></div>
+</section>

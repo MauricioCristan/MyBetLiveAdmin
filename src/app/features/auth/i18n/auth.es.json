@@ -1,0 +1,41 @@
+﻿{
+  "login": {
+    "title": "Admin",
+    "subtitle": "Inicia sesión para continuar",
+    "username": "Usuario",
+    "password": "Contraseña",
+    "requiredUser": "El usuario es requerido.",
+    "requiredPassword": "La contraseña es requerida.",
+    "forgot": "¿Olvidaste tu contraseña?",
+    "showPassword": "Mostrar contraseña",
+    "hidePassword": "Ocultar contraseña",
+    "submit": "Entrar",
+    "errorGeneric": "No se pudo iniciar sesión. Revisa usuario/contraseña."
+  },
+  "forgot": {
+    "title": "Recuperar contraseña",
+    "subtitle": "Te mandamos un link para crear una nueva contraseña.",
+    "success": "Listo. Si el correo existe, recibirás un link para resetear tu contraseña.",
+    "email": "Correo",
+    "emailPlaceholder": "tu@email.com",
+    "emailInvalid": "Ingresa un correo válido.",
+    "submit": "Enviar link",
+    "back": "Volver al login",
+    "errorGeneric": "No se pudo enviar el correo"
+  },
+  "password": {
+    "setTitle": "Crea tu contraseña",
+    "resetTitle": "Restablecer contraseña",
+    "setSubtitle": "Define tu contraseña para activar tu acceso.",
+    "resetSubtitle": "Crea una nueva contraseña para tu cuenta.",
+    "success": "Contraseña actualizada. Ya puedes iniciar sesión.",
+    "new": "Nueva contraseña",
+    "confirm": "Confirmar contraseña",
+    "min": "Mínimo 8 caracteres.",
+    "submit": "Guardar contraseña",
+    "goLogin": "Ir al login",
+    "tokenMissing": "Token faltante en URL.",
+    "notMatch": "Las contraseñas no coinciden.",
+    "errorGeneric": "No se pudo actualizar la contraseña"
+  }
+}

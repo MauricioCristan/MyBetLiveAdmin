@@ -1,0 +1,53 @@
+﻿.notification-host {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  z-index: 1100;
+  width: min(420px, calc(100vw - 2rem));
+  pointer-events: none;
+}
+
+.notification-tools {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.5rem;
+  pointer-events: auto;
+}
+
+.toast-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.toast {
+  width: 100%;
+  pointer-events: auto;
+}
+
+.toast-header {
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.toast-body {
+  color: #fff;
+}
+
+.text-bg-warning .toast-body,
+.text-bg-info .toast-body {
+  color: #111;
+}
+
+.toast-details summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+@media (max-width: 576px) {
+  .notification-host {
+    left: 1rem;
+    right: 1rem;
+    width: auto;
+  }
+}
+

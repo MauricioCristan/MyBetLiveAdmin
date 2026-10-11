@@ -1,0 +1,33 @@
+﻿{
+  "brand": "Admin",
+  "toggleSidebar": "Collapse/Expand sidebar",
+  "openMenu": "Open menu",
+  "logout": "Sign out",
+  "adminSection": "Administration",
+  "users": "Users",
+  "roles": "Roles",
+  "settings": "Settings",
+  "language": "Language",
+  "menu": {
+    "label": "Options"
+  },
+  "lang": {
+    "es": "ES",
+    "en": "EN"
+  },
+  "confirm": {
+    "title": "Confirm action",
+    "deleteTitle": "Confirm deletion",
+    "cancel": "Cancel",
+    "confirm": "Confirm"
+  },
+  "close": "Close",
+  "home": {
+    "loading": "Checking permissions...",
+    "error": "Unable to load your permissions.",
+    "retry": "Retry",
+    "noAccessTitle": "No module access",
+    "noAccessText": "Your user does not have read permission for Users, Roles, or Settings.",
+    "goLogin": "Go to login"
+  }
+}

@@ -1,0 +1,181 @@
+﻿<div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-2 mb-3">
+  <div>
+    <h4 class="mb-0">{{ 'list.title' | t:'roles' }}</h4>
+    <small class="text-muted">{{ 'list.subtitle' | t:'roles' }}</small>
+  </div>
+
+  <div class="d-flex gap-2">
+    <button class="btn btn-outline-secondary" (click)="load()" [disabled]="loading">
+      @if (loading) {
+        <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+      } @else {
+        <i class="bi bi-arrow-clockwise me-1"></i>
+      }
+      {{ 'list.refresh' | t:'roles' }}
+    </button>
+
+    @if (canCreateRole) {
+      <button class="btn btn-primary" (click)="create()" [disabled]="loading">
+        <i class="bi bi-plus-lg me-1"></i>{{ 'list.new' | t:'roles' }}
+      </button>
+    }
+  </div>
+</div>
+
+@if (backendError) {
+  <div class="alert alert-danger">
+    {{ backendError }}
+  </div>
+}
+
+<div class="card">
+  <div class="card-body">
+    <div class="row g-2 align-items-end mb-3">
+      <div class="col-12 col-md-4">
+        <label class="form-label">{{ 'list.filterCode' | t:'roles' }}</label>
+        <input
+          class="form-control"
+          [placeholder]="'list.filterCodePlaceholder' | t:'roles'"
+          [(ngModel)]="query.code"
+          (keyup.enter)="onSearch()"
+        />
+      </div>
+
+      <div class="col-12 col-md-4">
+        <label class="form-label">{{ 'list.filterName' | t:'roles' }}</label>
+        <input
+          class="form-control"
+          [placeholder]="'list.filterNamePlaceholder' | t:'roles'"
+          [(ngModel)]="query.name"
+          (keyup.enter)="onSearch()"
+        />
+      </div>
+
+      <div class="col-12 col-md-4 d-flex gap-2">
+        <button class="btn btn-outline-primary flex-grow-1 mt-4" (click)="onSearch()" [disabled]="loading">
+          <i class="bi bi-search me-1"></i>{{ 'list.searchBtn' | t:'roles' }}
+        </button>
+
+        <button class="btn btn-outline-secondary flex-grow-1 mt-4" (click)="clearSearch()" [disabled]="loading">
+          <i class="bi bi-x-lg me-1"></i>{{ 'list.clearBtn' | t:'roles' }}
+        </button>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead>
+          <tr>
+            <th class="sortable" (click)="toggleSort('code')">
+              {{ 'list.code' | t:'roles' }}
+              <i class="ms-1" [class]="sortIcon('code')"></i>
+            </th>
+
+            <th class="sortable" (click)="toggleSort('name')">
+              {{ 'list.name' | t:'roles' }}
+              <i class="ms-1" [class]="sortIcon('name')"></i>
+            </th>
+
+            <th class="sortable" (click)="toggleSort('createdAt')">
+              {{ 'list.created' | t:'roles' }}
+              <i class="ms-1" [class]="sortIcon('createdAt')"></i>
+            </th>
+
+            <th class="sortable" (click)="toggleSort('updatedAt')">
+              {{ 'list.updated' | t:'roles' }}
+              <i class="ms-1" [class]="sortIcon('updatedAt')"></i>
+            </th>
+
+            <th class="text-end" style="width: 120px;">{{ 'list.actions' | t:'roles' }}</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @if (!loading && pageData.data.length === 0) {
+            <tr>
+              <td colspan="5" class="text-muted py-4 text-center">{{ 'list.noResults' | t:'roles' }}</td>
+            </tr>
+          }
+
+          @for (r of pageData.data; track trackById($index, r)) {
+            <tr>
+              <td class="fw-semibold">{{ r.code }}</td>
+              <td>{{ r.name }}</td>
+              <td>{{ r.createdAt ? (r.createdAt | date:'medium') : '—' }}</td>
+              <td>{{ r.updatedAt ? (r.updatedAt | date:'medium') : '—' }}</td>
+
+              <td class="text-end">
+                <div class="d-inline-flex gap-2">
+                  <button
+                    class="btn btn-sm px-2"
+                    [class.btn-outline-primary]="canUpdateRole"
+                    [class.btn-outline-secondary]="!canUpdateRole"
+                    (click)="edit(r.id)"
+                    [disabled]="loading"
+                    [attr.title]="'list.edit' | t:'roles'"
+                    [attr.aria-label]="'list.edit' | t:'roles'"
+                  >
+                    <i class="bi" [class.bi-pencil-square]="canUpdateRole" [class.bi-eye]="!canUpdateRole"></i>
+                  </button>
+
+                  @if (canDeleteRole) {
+                    <button
+                      class="btn btn-sm btn-outline-danger px-2"
+                      (click)="remove(r.id)"
+                      [disabled]="loading || deletingId === r.id"
+                      [attr.title]="'list.delete' | t:'roles'"
+                      [attr.aria-label]="'list.delete' | t:'roles'"
+                    >
+                      @if (deletingId === r.id) {
+                        <span class="spinner-border spinner-border-sm"></span>
+                      } @else {
+                        <i class="bi bi-trash"></i>
+                      }
+                    </button>
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2 mt-3">
+      <small class="text-muted">
+        {{ 'list.page' | t:'roles' }} {{ pageData.page }} / {{ totalPages }} — {{ 'list.total' | t:'roles' }}: {{ pageData.total }}
+        <span class="ms-2">| {{ 'list.order' | t:'roles' }}: <b>{{ sort.field }}</b> ({{ sort.dir }})</span>
+      </small>
+
+      <nav [attr.aria-label]="'list.page' | t:'roles'">
+        <ul class="pagination pagination-sm mb-0 flex-wrap"><li class="page-item" [class.disabled]="loading || pageData.page <= 1">
+            <button class="page-link" type="button" (click)="prev()" [disabled]="loading || pageData.page <= 1">
+              {{ 'list.prevPage' | t:'roles' }}
+            </button>
+          </li>
+
+          @for (item of paginationItems; track $index) {
+            @if (item === '...') {
+              <li class="page-item disabled">
+                <span class="page-link">…</span>
+              </li>
+            } @else {
+              <li class="page-item" [class.active]="item === pageData.page">
+                <button class="page-link" type="button" (click)="goToPage(item)" [disabled]="loading">
+                  {{ item }}
+                </button>
+              </li>
+            }
+          }
+
+          <li class="page-item" [class.disabled]="loading || pageData.page >= totalPages">
+            <button class="page-link" type="button" (click)="next()" [disabled]="loading || pageData.page >= totalPages">
+              {{ 'list.nextPage' | t:'roles' }}
+            </button>
+          </li></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+

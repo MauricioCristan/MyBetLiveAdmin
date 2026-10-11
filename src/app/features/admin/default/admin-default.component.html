@@ -1,0 +1,30 @@
+@if (loading) {
+  <div class="card shadow-sm">
+    <div class="card-body d-flex align-items-center">
+      <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+      {{ 'home.loading' | t:'layout' }}
+    </div>
+  </div>
+}
+
+@if (!loading && error) {
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <div class="alert alert-danger mb-3">{{ 'home.error' | t:'layout' }}</div>
+      <button class="btn btn-outline-secondary" (click)="retry()">{{ 'home.retry' | t:'layout' }}</button>
+    </div>
+  </div>
+}
+
+@if (!loading && noAccess) {
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <h5 class="mb-2">{{ 'home.noAccessTitle' | t:'layout' }}</h5>
+      <p class="text-muted mb-3">{{ 'home.noAccessText' | t:'layout' }}</p>
+      <div class="d-flex gap-2">
+        <button class="btn btn-outline-secondary" (click)="retry()">{{ 'home.retry' | t:'layout' }}</button>
+        <button class="btn btn-primary" (click)="logout()">{{ 'home.goLogin' | t:'layout' }}</button>
+      </div>
+    </div>
+  </div>
+}

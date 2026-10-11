@@ -1,0 +1,47 @@
+@font-face{font-family:'MyBet Brand';src:url('/fonts/barlow-condensed-bold-italic.ttf') format('truetype');font-style:italic;font-weight:700;font-display:swap}
+@font-face{font-family:'Inter Tight';src:url('/fonts/inter-tight-400.woff2') format('woff2');font-style:normal;font-weight:400;font-display:swap}
+@font-face{font-family:'Inter Tight';src:url('/fonts/inter-tight-500.woff2') format('woff2');font-style:normal;font-weight:500;font-display:swap}
+@font-face{font-family:'Inter Tight';src:url('/fonts/inter-tight-600.woff2') format('woff2');font-style:normal;font-weight:600;font-display:swap}
+@font-face{font-family:'Inter Tight';src:url('/fonts/inter-tight-700.woff2') format('woff2');font-style:normal;font-weight:700;font-display:swap}
+
+:root{--mb-ink:#0c141b;--mb-panel:#17232e;--mb-raised:#20313e;--mb-border:#2c414f;--mb-white:#e8f0f4;--mb-muted:#9aaebb;--mb-brand:#b5f36d;--mb-green:#40c983;--mb-red:#e86a6a;--mb-amber:#f2bd5b;--mb-green-bg:#173c30;--mb-red-bg:#3b252d;--mb-amber-bg:#3d3425}
+.mybet-admin,.mybet-auth{
+ --bs-body-bg:var(--mb-ink);--bs-body-color:var(--mb-white);--bs-secondary-color:var(--mb-muted);--bs-border-color:var(--mb-border);--bs-link-color:var(--mb-brand);--bs-link-hover-color:var(--mb-white);--bs-tertiary-bg:var(--mb-panel);--bs-secondary-bg:var(--mb-raised);
+ font-family:'Inter Tight',system-ui,sans-serif;color:var(--mb-white);background:var(--mb-ink);color-scheme:dark;
+ h1,h2,h3,h4{font-weight:700;letter-spacing:-.025em}h1{font-size:clamp(1.65rem,3vw,2rem)}h2{font-size:1.35rem}h3,h4{font-size:1.25rem}
+ a{color:var(--mb-brand)}p{line-height:1.55}small,.small{line-height:1.5}
+ .card,.panel{background:var(--mb-panel);color:var(--mb-white);border:1px solid var(--mb-border);border-radius:14px;box-shadow:none!important}
+ .card-header{background:transparent;border-color:var(--mb-border);padding:20px 24px}.card-body{padding:24px}
+ .btn{min-height:44px;border-radius:9px;font-weight:600;padding:10px 16px;white-space:normal;display:inline-flex;justify-content:center;align-items:center;gap:6px;box-shadow:none}
+ .btn.btn-sm{min-height:36px;padding:6px 12px;font-size:13px}
+ .btn.btn-primary,.btn.btn-dark{--bs-btn-color:var(--mb-ink);--bs-btn-bg:var(--mb-brand);--bs-btn-border-color:var(--mb-brand);--bs-btn-hover-color:var(--mb-ink);--bs-btn-hover-bg:#c7f895;--bs-btn-hover-border-color:#c7f895;--bs-btn-active-bg:#a5dc63;--bs-btn-active-color:var(--mb-ink);--bs-btn-active-border-color:#a5dc63;--bs-btn-disabled-bg:var(--mb-raised);--bs-btn-disabled-border-color:var(--mb-border);--bs-btn-disabled-color:var(--mb-muted)}
+ .btn.btn-outline-secondary,.btn.btn-outline-dark,.btn.btn-outline-light,.btn.btn-light{--bs-btn-color:var(--mb-white);--bs-btn-bg:var(--mb-raised);--bs-btn-border-color:var(--mb-border);--bs-btn-hover-color:var(--mb-brand);--bs-btn-hover-bg:var(--mb-green-bg);--bs-btn-hover-border-color:var(--mb-green);--bs-btn-active-bg:var(--mb-green-bg);--bs-btn-active-color:var(--mb-brand);--bs-btn-disabled-color:var(--mb-muted);--bs-btn-disabled-border-color:var(--mb-border)}
+ .btn.btn-outline-danger{--bs-btn-color:var(--mb-red);--bs-btn-border-color:var(--mb-red);--bs-btn-hover-bg:var(--mb-red-bg);--bs-btn-hover-color:var(--mb-white);--bs-btn-hover-border-color:var(--mb-red)}
+ a.btn{color:var(--bs-btn-color)}.btn-link{color:var(--mb-brand);text-decoration:none}.btn:disabled{opacity:.55}
+ .form-control,.form-select{min-height:46px;background-color:var(--mb-ink);border-color:var(--mb-border);color:var(--mb-white);border-radius:8px;padding:11px 14px;font-size:14px}
+ .form-control::placeholder{color:var(--mb-muted);opacity:.8}.form-control:focus,.form-select:focus{background-color:var(--mb-ink);color:var(--mb-white);border-color:var(--mb-brand);box-shadow:0 0 0 3px #b5f36d20}
+ .form-select{--bs-form-select-bg-img:url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%239AAEBB' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e")}
+ .form-control:disabled,.form-select:disabled,.form-control[readonly]{background:var(--mb-raised);color:var(--mb-muted)}.form-label{color:var(--mb-muted);font-size:13px;font-weight:500;margin-bottom:8px}
+ .form-check-input{background-color:var(--mb-raised);border-color:var(--mb-border)}.form-check-input:checked{background-color:var(--mb-green);border-color:var(--mb-green)}.form-check-input:focus{border-color:var(--mb-brand);box-shadow:0 0 0 3px #b5f36d20}
+ .text-danger,.invalid-feedback{color:var(--mb-red)!important}.text-success{color:var(--mb-green)!important}.text-warning{color:var(--mb-amber)!important}
+ .table{--bs-table-bg:transparent;--bs-table-color:var(--mb-white);--bs-table-border-color:var(--mb-border);--bs-table-hover-bg:var(--mb-raised);--bs-table-hover-color:var(--mb-white)}
+ .badge{padding:7px 10px;border-radius:7px;font-size:12px;font-weight:600}.badge.text-bg-success,.badge.bg-success{background:var(--mb-green-bg)!important;color:var(--mb-green)!important}.badge.text-bg-secondary{background:var(--mb-raised)!important;color:var(--mb-muted)!important}.badge.bg-warning{background:var(--mb-amber-bg)!important;color:var(--mb-amber)!important}
+ .alert{border:1px solid transparent;border-radius:10px;line-height:1.5;padding:16px 18px}.alert-success,.alert-info{background:var(--mb-green-bg);color:var(--mb-white);border-color:#40c98333}.alert-warning{background:var(--mb-amber-bg);color:var(--mb-amber);border-color:#f2bd5b33}.alert-danger{background:var(--mb-red-bg);color:var(--mb-red);border-color:#e86a6a33}
+ .dropdown-menu{--bs-dropdown-bg:var(--mb-panel);--bs-dropdown-color:var(--mb-white);--bs-dropdown-border-color:var(--mb-border);--bs-dropdown-link-color:var(--mb-white);--bs-dropdown-link-hover-bg:var(--mb-raised);--bs-dropdown-link-hover-color:var(--mb-brand);--bs-dropdown-header-color:var(--mb-muted)}
+ :focus-visible{outline:2px solid var(--mb-brand);outline-offset:3px}.progress{background:var(--mb-raised)}.progress-bar{background:var(--mb-green)}
+}
+.brand-lockup{display:inline-flex;align-items:center;gap:12px;text-decoration:none!important;color:var(--mb-white)!important;font-size:23px;font-weight:700;letter-spacing:-.035em}.brand-lockup img{width:38px;height:38px}.brand-lockup small{font-size:9px;font-weight:600;letter-spacing:.08em;color:var(--mb-muted)}
+.form-workspace{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:24px;align-items:start}.form-context{padding:24px}.form-context h2{font-size:20px;margin-bottom:20px}.form-context p{color:var(--mb-muted);font-size:14px}.form-context .btn{width:100%;margin-top:8px}
+@media(max-width:1050px){.form-workspace{grid-template-columns:minmax(0,1fr)}.form-context{order:2}}
+@media(prefers-reduced-motion:reduce){.mybet-admin *,.mybet-auth *{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+
+.mybet-admin{.provider-change-list{list-style:none;padding:0;margin:24px 0}.provider-change-list li{padding:16px;background:var(--mb-ink);border:1px solid var(--mb-border);border-radius:8px;margin-bottom:12px}.provider-change-list span{display:block;margin-top:8px;color:var(--mb-muted)}.provider-change-list b{color:var(--mb-brand)}}
+@media(max-width:650px){.mybet-admin .mybet{.table-responsive{overflow:visible}.table,.table tbody{display:block;width:100%}.table thead{display:none}.table tr{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;padding:20px;border-bottom:1px solid var(--mb-border)}.table tr:last-child{border:0}.table td{display:block;padding:4px 0!important;border:0;background:transparent;min-width:0;overflow-wrap:anywhere;font-size:13px}.table td:first-child,.table td:last-child{grid-column:1/-1}.table td[data-label]::before{content:attr(data-label);display:block;font-size:11px;color:var(--mb-muted);margin-bottom:4px}.table td:first-child::before,.table td:last-child::before{display:none}.table td:last-child{padding-top:12px!important}.table tr:has(td[colspan]){display:block}.plan-grid,.area-grid{grid-template-columns:1fr}}}
+
+.mybet-admin .settings-page{.operation-help{font-size:13px;margin:12px 0}.operation-help summary{cursor:pointer;color:var(--mb-brand)}.settings-bottom-actions{display:flex;gap:12px;margin-top:24px}.provider-choice span,.operation-metrics>div{min-width:0}.provider-choice strong,.operation-metrics strong,.operation-metrics b{overflow-wrap:anywhere}.form-switch{min-height:44px;display:flex;align-items:center;gap:10px}
+@media(max-width:650px){.settings-bottom-actions{flex-direction:column}.settings-bottom-actions .btn{width:100%}}
+}
+
+@media(max-width:650px){.mybet-admin .mybet .table-responsive.panel{border:0;background:transparent}.mybet-admin .mybet .table tbody{display:grid;gap:16px}.mybet-admin .mybet .table tbody tr{background:var(--mb-panel);border:1px solid var(--mb-border);border-radius:12px}.mybet-admin .mybet .table tbody tr:last-child{border:1px solid var(--mb-border)}}
+
+.brand-wordmark{font-family:'MyBet Brand',sans-serif;font-weight:700;font-style:italic;letter-spacing:.007em;color:#f4f6f8;white-space:nowrap}.brand-live{color:#b5f36d}

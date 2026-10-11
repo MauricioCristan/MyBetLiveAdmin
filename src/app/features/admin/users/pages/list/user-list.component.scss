@@ -1,0 +1,18 @@
+﻿.table td,
+.table th {
+  vertical-align: middle;
+}
+
+.action-icon-btn {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-icon-btn .spinner-border {
+  width: 0.9rem;
+  height: 0.9rem;
+}

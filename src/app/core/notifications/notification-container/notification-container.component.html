@@ -1,0 +1,63 @@
+﻿<section class="notification-host" aria-label="Notifications" aria-live="polite" aria-atomic="false">
+  @if ((toasts$ | async); as toasts) {
+    @if (toasts.length > 0) {
+      <div class="notification-tools">
+        <button type="button" class="btn btn-sm btn-outline-secondary" (click)="dismissAll()">
+          Clear all
+        </button>
+      </div>
+    }
+
+    <div class="toast-stack">
+      @for (toast of toasts; track trackById($index, toast)) {
+        <article
+          class="toast show shadow-sm"
+          [class]="'toast show shadow-sm ' + toastClass(toast.type)"
+          [attr.role]="liveRole(toast.type)"
+          [attr.aria-live]="livePoliteness(toast.type)"
+          aria-atomic="true"
+        >
+          <div class="toast-header">
+            <strong class="me-auto">
+              {{ toast.title || (toast.type | titlecase) }}
+            </strong>
+
+            @if (!toast.sticky && toast.durationMs) {
+              <small>{{ (toast.durationMs / 1000) | number:'1.0-0' }}s</small>
+            }
+
+            <button
+              type="button"
+              class="btn-close ms-2"
+              aria-label="Close"
+              (click)="dismiss(toast.id)"
+            ></button>
+          </div>
+
+          <div class="toast-body">
+            <div>{{ toast.message }}</div>
+
+            @if (toast.details.length > 0) {
+              <details class="toast-details mt-2">
+                <summary>Details</summary>
+                <ul class="mb-0 mt-2 ps-3">
+                  @for (item of toast.details; track $index) {
+                    <li>{{ item }}</li>
+                  }
+                </ul>
+              </details>
+            }
+
+            @if (toast.action) {
+              <div class="mt-2">
+                <button type="button" class="btn btn-sm btn-light" (click)="runAction(toast)">
+                  {{ toast.action.label }}
+                </button>
+              </div>
+            }
+          </div>
+        </article>
+      }
+    </div>
+  }
+</section>

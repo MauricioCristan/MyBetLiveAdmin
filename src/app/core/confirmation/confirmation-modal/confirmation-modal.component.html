@@ -1,0 +1,40 @@
+@if (confirmation.state().open) {
+  <div class="modal-backdrop fade show"></div>
+
+  <div
+    class="modal fade show d-block"
+    tabindex="-1"
+    role="dialog"
+    aria-modal="true"
+    [attr.aria-label]="confirmation.state().title || ('confirm.title' | t:'layout')"
+  >
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">
+            {{ confirmation.state().title || ('confirm.title' | t:'layout') }}
+          </h5>
+          <button
+            type="button"
+            class="btn-close"
+            [attr.aria-label]="'close' | t:'layout'"
+            (click)="confirmation.cancel()"
+          ></button>
+        </div>
+
+        <div class="modal-body">
+          <p class="mb-0">{{ confirmation.state().message }}</p>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" (click)="confirmation.cancel()">
+            {{ confirmation.state().cancelText || ('confirm.cancel' | t:'layout') }}
+          </button>
+          <button type="button" class="btn" [ngClass]="confirmation.state().confirmClass" (click)="confirmation.accept()">
+            {{ confirmation.state().confirmText || ('confirm.confirm' | t:'layout') }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

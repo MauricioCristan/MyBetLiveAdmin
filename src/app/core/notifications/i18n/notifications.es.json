@@ -1,0 +1,27 @@
+﻿{
+  "saved": "Cambios guardados correctamente.",
+  "error": {
+    "generic": "Ocurrió un error inesperado. Inténtalo de nuevo."
+  },
+  "loginSuccess": "Inicio de sesión exitoso.",
+  "retry": "Reintentar",
+  "details": "Ver detalles",
+  "users": {
+    "created": "Usuario creado correctamente.",
+    "updated": "Usuario actualizado correctamente.",
+    "deleted": "Usuario eliminado correctamente.",
+    "saveError": "No se pudo guardar el usuario.",
+    "deleteError": "No se pudo eliminar el usuario."
+  },
+  "roles": {
+    "created": "Rol creado correctamente.",
+    "updated": "Rol actualizado correctamente.",
+    "deleted": "Rol eliminado correctamente.",
+    "saveError": "No se pudo guardar el rol.",
+    "deleteError": "No se pudo eliminar el rol."
+  },
+  "settings": {
+    "updated": "Configuración actualizada correctamente.",
+    "updateError": "No se pudieron guardar los cambios de configuración."
+  }
+}

@@ -1,0 +1,202 @@
+﻿<div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-2 mb-3">
+  <div>
+    <h4 class="mb-0">{{ 'list.title' | t:'users' }}</h4>
+    <small class="text-muted">{{ 'list.subtitle' | t:'users' }}</small>
+  </div>
+
+  <div class="d-flex gap-2">
+    <button class="btn btn-outline-secondary" (click)="load()" [disabled]="loading">
+      @if (loading) {
+        <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+      } @else {
+        <i class="bi bi-arrow-clockwise me-1"></i>
+      }
+      {{ 'list.refresh' | t:'users' }}
+    </button>
+
+    @if (canCreateUser) {
+      <button class="btn btn-primary" (click)="create()" [disabled]="loading">
+        <i class="bi bi-plus-lg me-1"></i>{{ 'list.new' | t:'users' }}
+      </button>
+    }
+  </div>
+</div>
+
+@if (backendError) {
+  <div class="alert alert-danger">
+    {{ backendError }}
+  </div>
+}
+
+<div class="card">
+  <div class="card-body">
+    <div class="row g-2 align-items-end mb-3">
+      <div class="col-12 col-md-3">
+        <label class="form-label">{{ 'list.filterUsername' | t:'users' }}</label>
+        <input
+          class="form-control"
+          [placeholder]="'list.filterUsernamePlaceholder' | t:'users'"
+          [(ngModel)]="query.username"
+          (keyup.enter)="onSearch()"
+        />
+      </div>
+
+      <div class="col-12 col-md-3">
+        <label class="form-label">{{ 'list.filterEmail' | t:'users' }}</label>
+        <input
+          class="form-control"
+          [placeholder]="'list.filterEmailPlaceholder' | t:'users'"
+          [(ngModel)]="query.email"
+          (keyup.enter)="onSearch()"
+        />
+      </div>
+
+      <div class="col-12 col-md-2">
+        <label class="form-label">{{ 'list.filterStatus' | t:'users' }}</label>
+        <select class="form-select" [(ngModel)]="query.enabled">
+          <option value="">{{ 'list.filterAny' | t:'users' }}</option>
+          <option value="true">{{ 'list.yes' | t:'users' }}</option>
+          <option value="false">{{ 'list.no' | t:'users' }}</option>
+        </select>
+      </div>
+
+      <div class="col-12 col-md-4 d-flex gap-2">
+        <button class="btn btn-outline-primary flex-grow-1 mt-4" (click)="onSearch()" [disabled]="loading">
+          <i class="bi bi-search me-1"></i>{{ 'list.searchBtn' | t:'users' }}
+        </button>
+
+        <button class="btn btn-outline-secondary flex-grow-1 mt-4" (click)="clearSearch()" [disabled]="loading">
+          <i class="bi bi-x-lg me-1"></i>{{ 'list.clearBtn' | t:'users' }}
+        </button>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead>
+          <tr>
+            <th class="sortable" (click)="toggleSort('username')">
+              {{ 'list.username' | t:'users' }}
+              <i class="ms-1" [class]="sortIcon('username')"></i>
+            </th>
+
+            <th class="sortable" (click)="toggleSort('email')">
+              {{ 'list.email' | t:'users' }}
+              <i class="ms-1" [class]="sortIcon('email')"></i>
+            </th>
+
+            <th class="text-center sortable" (click)="toggleSort('enabled')">
+              {{ 'list.active' | t:'users' }}
+              <i class="ms-1" [class]="sortIcon('enabled')"></i>
+            </th>
+
+            <th class="sortable" (click)="toggleSort('createdAt')">
+              {{ 'list.created' | t:'users' }}
+              <i class="ms-1" [class]="sortIcon('createdAt')"></i>
+            </th>
+
+            <th class="sortable" (click)="toggleSort('updatedAt')">
+              {{ 'list.updated' | t:'users' }}
+              <i class="ms-1" [class]="sortIcon('updatedAt')"></i>
+            </th>
+
+            <th class="text-end" style="width: 120px;">{{ 'list.actions' | t:'users' }}</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @if (!loading && pageData.data.length === 0) {
+            <tr>
+              <td colspan="6" class="text-muted py-4 text-center">{{ 'list.noResults' | t:'users' }}</td>
+            </tr>
+          }
+
+          @for (u of pageData.data; track trackById($index, u)) {
+            <tr>
+              <td class="fw-semibold">{{ u.username }}</td>
+              <td>{{ u.email || '—' }}</td>
+
+              <td class="text-center">
+                <span class="badge" [class.text-bg-success]="u.enabled" [class.text-bg-secondary]="!u.enabled">
+                  {{ u.enabled ? ('list.yes' | t:'users') : ('list.no' | t:'users') }}
+                </span>
+              </td>
+
+              <td>{{ u.createdAt ? (u.createdAt | date:'medium') : '—' }}</td>
+              <td>{{ u.updatedAt ? (u.updatedAt | date:'medium') : '—' }}</td>
+
+              <td class="text-end">
+                <div class="d-inline-flex gap-2">
+                  <button
+                    class="btn btn-sm px-2"
+                    [class.btn-outline-primary]="canUpdateUser"
+                    [class.btn-outline-secondary]="!canUpdateUser"
+                    (click)="edit(u.id)"
+                    [disabled]="loading"
+                    [attr.title]="'list.edit' | t:'users'"
+                    [attr.aria-label]="'list.edit' | t:'users'"
+                  >
+                    <i class="bi" [class.bi-pencil-square]="canUpdateUser" [class.bi-eye]="!canUpdateUser"></i>
+                  </button>
+
+                  @if (canDeleteUser) {
+                    <button
+                      class="btn btn-sm btn-outline-danger px-2"
+                      (click)="remove(u.id)"
+                      [disabled]="loading || deletingId === u.id"
+                      [attr.title]="'list.delete' | t:'users'"
+                      [attr.aria-label]="'list.delete' | t:'users'"
+                    >
+                      @if (deletingId === u.id) {
+                        <span class="spinner-border spinner-border-sm"></span>
+                      } @else {
+                        <i class="bi bi-trash"></i>
+                      }
+                    </button>
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2 mt-3">
+      <small class="text-muted">
+        {{ 'list.page' | t:'users' }} {{ pageData.page }} / {{ totalPages }} — {{ 'list.total' | t:'users' }}: {{ pageData.total }}
+        <span class="ms-2">| {{ 'list.order' | t:'users' }}: <b>{{ sort.field }}</b> ({{ sort.dir }})</span>
+      </small>
+
+      <nav [attr.aria-label]="'list.page' | t:'users'">
+        <ul class="pagination pagination-sm mb-0 flex-wrap"><li class="page-item" [class.disabled]="loading || pageData.page <= 1">
+            <button class="page-link" type="button" (click)="prev()" [disabled]="loading || pageData.page <= 1">
+              {{ 'list.prevPage' | t:'users' }}
+            </button>
+          </li>
+
+          @for (item of paginationItems; track $index) {
+            @if (item === '...') {
+              <li class="page-item disabled">
+                <span class="page-link">…</span>
+              </li>
+            } @else {
+              <li class="page-item" [class.active]="item === pageData.page">
+                <button class="page-link" type="button" (click)="goToPage(item)" [disabled]="loading">
+                  {{ item }}
+                </button>
+              </li>
+            }
+          }
+
+          <li class="page-item" [class.disabled]="loading || pageData.page >= totalPages">
+            <button class="page-link" type="button" (click)="next()" [disabled]="loading || pageData.page >= totalPages">
+              {{ 'list.nextPage' | t:'users' }}
+            </button>
+          </li></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+

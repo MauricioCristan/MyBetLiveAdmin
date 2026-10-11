@@ -1,0 +1,108 @@
+﻿<div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-2 mb-3">
+  <div>
+    <h4 class="mb-0">{{ isEdit ? ('form.titleEdit' | t:'users') : ('form.titleNew' | t:'users') }}</h4>
+    <small class="text-muted">{{ 'form.subtitle' | t:'users' }}</small>
+  </div>
+
+  <div class="d-flex gap-2">
+    <button class="btn btn-outline-secondary" (click)="cancel()" [disabled]="loading">
+      <i class="bi bi-arrow-left me-1"></i>{{ 'form.back' | t:'users' }}
+    </button>
+
+    @if (canSave) {
+      <button class="btn btn-primary" (click)="save()" [disabled]="loading || rolesLoading">
+        @if (loading) {
+          <span class="spinner-border spinner-border-sm me-2"></span>
+        } @else {
+          <i class="bi bi-save me-1"></i>
+        }
+        {{ 'form.save' | t:'users' }}
+      </button>
+    }
+  </div>
+</div>
+
+@if (backendError) {
+  <div class="alert alert-danger">
+    {{ backendError }}
+  </div>
+}
+
+<div class="card">
+  <div class="card-body">
+    <form [formGroup]="form" (ngSubmit)="save()">
+      <div class="row g-3">
+        <div class="col-12 col-md-6">
+          <label class="form-label">{{ 'form.username' | t:'users' }}</label>
+          <input
+            class="form-control"
+            formControlName="username"
+            [placeholder]="'form.usernamePlaceholder' | t:'users'"
+            autocomplete="username"
+            [attr.minlength]="limits.USERNAME_MIN"
+            [attr.maxlength]="limits.USERNAME_MAX"
+          />
+          @if (form.controls.username.touched && form.controls.username.invalid) {
+            <div class="text-danger small mt-1">
+              {{ 'form.usernameInvalid' | t:'users' }}
+            </div>
+          }
+        </div>
+
+        <div class="col-12 col-md-6">
+          <label class="form-label">{{ 'form.email' | t:'users' }}</label>
+          <input
+            type="email"
+            class="form-control"
+            formControlName="email"
+            [placeholder]="'form.emailPlaceholder' | t:'users'"
+            autocomplete="email"
+            [attr.maxlength]="limits.EMAIL_MAX"
+          />
+          @if (form.controls.email.touched && form.controls.email.invalid) {
+            <div class="text-danger small mt-1">
+              {{ 'form.emailInvalid' | t:'users' }}
+            </div>
+          }
+        </div>
+
+        <div class="col-12 col-md-6">
+          <label class="form-label">{{ 'form.role' | t:'users' }}</label>
+
+          <select class="form-select" formControlName="roleId" [disabled]="!canEditRole">
+            <option [ngValue]="null">{{ 'form.rolePlaceholder' | t:'users' }}</option>
+            @for (r of roleOptions; track r.id) {
+              <option [ngValue]="r.id">{{ r.label }}</option>
+            }
+          </select>
+
+          @if (form.controls.roleId.touched && form.controls.roleId.invalid) {
+            <div class="text-danger small mt-1">
+              {{ 'form.roleRequired' | t:'users' }}
+            </div>
+          }
+
+          @if (rolesLoading) {
+            <small class="text-muted">{{ 'form.rolesLoading' | t:'users' }}</small>
+          } @else if (!canChangeRole) {
+            <small class="text-muted">{{ 'form.roleReadOnlyByPermission' | t:'users' }}</small>
+          }
+        </div>
+
+        <div class="col-12 col-md-6 d-flex align-items-end">
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" formControlName="enabled" id="enabledSwitch" />
+            <label class="form-check-label" for="enabledSwitch">{{ 'form.enabled' | t:'users' }}</label>
+          </div>
+        </div>
+
+        <div class="col-12">
+          <div class="alert alert-info mb-0">
+            <i class="bi bi-info-circle me-1"></i>
+            {{ 'form.info' | t:'users' }}
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

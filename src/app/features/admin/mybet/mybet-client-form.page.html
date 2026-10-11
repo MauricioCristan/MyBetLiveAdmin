@@ -1,0 +1,14 @@
+<section class="mybet">
+ <div class="breadcrumb-line"><a routerLink="/admin/mybet">MyBetLive</a><span>/</span><a routerLink="/admin/mybet/clients">Clientes</a><span>/</span><span>{{id?'Editar':'Crear'}}</span></div>
+ <div class="toolbar"><div><h1>{{id?'Editar cliente':'Crear cliente'}}</h1><p class="text-muted mb-0">Datos de la cuenta y acceso a la plataforma.</p></div><a class="btn btn-outline-secondary" routerLink="/admin/mybet/clients">Volver al listado</a></div>
+ @if(error()){<div class="alert alert-danger" role="alert">{{error()}} <button class="btn btn-sm btn-outline-danger" (click)="load()" [disabled]="busy()">Reintentar</button></div>}
+ <div class="form-workspace"><form class="panel" [formGroup]="form" (ngSubmit)="save()">
+  <div class="row g-3"><div class="col-md-6"><label class="form-label" for="client-username">Usuario</label><input id="client-username" class="form-control" formControlName="username" minlength="3" maxlength="60" autocomplete="off"></div>
+   <div class="col-md-6"><label class="form-label" for="client-email">Correo electrónico</label><input id="client-email" class="form-control" type="email" formControlName="email" maxlength="120"></div>
+   <div class="col-12"><label class="form-check"><input class="form-check-input" type="checkbox" formControlName="enabled"><span class="form-check-label">Cuenta habilitada</span></label></div>
+  </div>
+  @if(!id){<p class="small text-muted mt-3">La cuenta se crea con rol de cliente. Si tiene correo, el flujo de la plataforma envía el enlace para establecer su contraseña.</p>}
+  @if(form.touched&&form.invalid){<p class="text-danger mt-3" role="alert">El usuario debe tener entre 3 y 60 caracteres. Revisa el correo electrónico.</p>}
+  <div class="form-actions"><button class="btn btn-dark" [disabled]="busy()||!ready()">{{busy()?'Guardando…':'Guardar cliente'}}</button><a class="btn btn-outline-secondary" routerLink="/admin/mybet/clients">Cancelar</a></div>
+ </form><aside class="panel form-context"><h2>Antes de guardar</h2><p>Los cambios se validan antes de aplicarse. Revisa el usuario y el correo de la cuenta.</p><p>Las credenciales se administran mediante el flujo de contraseña existente.</p></aside></div>
+</section>

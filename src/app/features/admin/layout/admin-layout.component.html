@@ -1,0 +1,190 @@
+<div class="mybet-admin" [class.is-sidebar-collapsed]="sidebarCollapsed">
+﻿<!-- TOP BAR -->
+<nav class="navbar navbar-dark admin-navbar sticky-top">
+  <div class="container-fluid gap-2">
+    <div class="d-flex align-items-center gap-2">
+      <!-- Mobile: opens offcanvas -->
+      <button
+        class="btn btn-outline-light btn-sm d-md-none"
+        type="button"
+        data-bs-toggle="offcanvas"
+        data-bs-target="#adminSidebarOffcanvas"
+        aria-controls="adminSidebarOffcanvas"
+        [attr.aria-label]="'openMenu' | t:'layout'"
+      >
+        <i aria-hidden="true" class="bi bi-list"></i>
+      </button>
+
+      <!-- Desktop: collapses sidebar -->
+      <button
+        class="btn btn-outline-light btn-sm d-none d-md-inline-flex"
+        type="button"
+        (click)="toggleSidebar()"
+        [attr.aria-expanded]="!sidebarCollapsed"
+        [attr.aria-label]="'toggleSidebar' | t:'layout'"
+      >
+        <i aria-hidden="true" class="bi" [ngClass]="sidebarCollapsed ? 'bi-layout-sidebar-inset' : 'bi-layout-sidebar'"></i>
+      </button>
+
+      <span class="navbar-context d-none d-md-inline">MYBETLIVE / {{ currentSection() }}</span>
+      <a class="brand-lockup d-md-none" [routerLink]="ADMIN_ROUTES.ROOT.COMMANDS"><img src="/brand/mybetlive-mark.svg" alt=""><span><span class="brand-wordmark">MYBET<span class="brand-live">LIVE</span></span><small class="d-block">ADMINISTRACIÓN</small></span></a>
+    </div>
+
+    <div class="d-flex align-items-center gap-2">
+      <div class="dropdown">
+        <button
+          class="btn btn-outline-light btn-sm dropdown-toggle d-inline-flex align-items-center gap-2"
+          type="button"
+          data-bs-toggle="dropdown"
+          [attr.aria-label]="currentUsername() || ('menu.label' | t:'layout')"
+          aria-expanded="false"
+        >
+          <i aria-hidden="true" class="bi bi-person-circle"></i>
+          <span>{{ currentUsername() || ('menu.label' | t:'layout') }}</span>
+        </button>
+
+        <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+          <li><h6 class="dropdown-header">{{ 'language' | t:'layout' }}</h6></li>
+          <li>
+            <button class="dropdown-item d-flex justify-content-between align-items-center" (click)="setLanguage('es')">
+              <span>{{ 'lang.es' | t:'layout' }}</span>
+              @if (i18n.lang() === 'es') {
+                <i aria-hidden="true" class="bi bi-check2"></i>
+              }
+            </button>
+          </li>
+          <li>
+            <button class="dropdown-item d-flex justify-content-between align-items-center" (click)="setLanguage('en')">
+              <span>{{ 'lang.en' | t:'layout' }}</span>
+              @if (i18n.lang() === 'en') {
+                <i aria-hidden="true" class="bi bi-check2"></i>
+              }
+            </button>
+          </li>
+
+          <li><hr class="dropdown-divider" /></li>
+          <li>
+            <button class="dropdown-item text-danger d-flex align-items-center gap-2" (click)="logout()" [disabled]="loggingOut">
+              @if (loggingOut) {
+                <span class="spinner-border spinner-border-sm" role="status"></span>
+              } @else {
+                <i aria-hidden="true" class="bi bi-box-arrow-right"></i>
+              }
+              <span>{{ 'logout' | t:'layout' }}</span>
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- MOBILE SIDEBAR (OFFCANVAS) -->
+<div
+  class="offcanvas offcanvas-start"
+  tabindex="-1"
+  id="adminSidebarOffcanvas"
+  aria-labelledby="adminSidebarOffcanvasLabel"
+>
+  <div class="offcanvas-header">
+    <h6 class="offcanvas-title fw-semibold" id="adminSidebarOffcanvasLabel">{{ 'adminSection' | t:'layout' }}</h6>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" [attr.aria-label]="'close' | t:'layout'"></button>
+  </div>
+
+  <div class="offcanvas-body p-0">
+    <div class="list-group list-group-flush">
+      @if (canAdminMyBet()) {
+        @for (item of myBetNavigation; track item.path) {
+          <a class="list-group-item list-group-item-action" [routerLink]="item.path" [class.active]="navActive(item)" [attr.aria-current]="navActive(item)?'page':null" data-bs-dismiss="offcanvas">
+            <i aria-hidden="true" [class]="'bi '+item.icon+' me-2'"></i>{{item.label}}
+          </a>
+        }
+      }
+      @if (!canAdminMyBet() && canReadUsers()) {
+        <a
+          class="list-group-item list-group-item-action"
+          [routerLink]="ADMIN_ROUTES.USERS.LIST.COMMANDS"
+          routerLinkActive="active"
+          data-bs-dismiss="offcanvas"
+        >
+          <i aria-hidden="true" class="bi bi-people me-2"></i>{{ 'users' | t:'layout' }}
+        </a>
+      }
+
+      @if (!canAdminMyBet() && canReadRoles()) {
+        <a
+          class="list-group-item list-group-item-action"
+          [routerLink]="ADMIN_ROUTES.ROLES.LIST.COMMANDS"
+          routerLinkActive="active"
+          data-bs-dismiss="offcanvas"
+        >
+          <i aria-hidden="true" class="bi bi-shield-lock me-2"></i>{{ 'roles' | t:'layout' }}
+        </a>
+      }
+
+      @if (!canAdminMyBet() && canReadSettings()) {
+        <a
+          class="list-group-item list-group-item-action"
+          [routerLink]="ADMIN_ROUTES.SETTINGS.COMMANDS"
+          routerLinkActive="active"
+          data-bs-dismiss="offcanvas"
+        >
+          <i aria-hidden="true" class="bi bi-gear me-2"></i>{{ 'settings' | t:'layout' }}
+        </a>
+      }
+    </div>
+  </div>
+</div>
+
+<!-- DESKTOP SHELL -->
+<div class="admin-shell d-flex">
+  <!-- DESKTOP SIDEBAR -->
+  <aside class="admin-sidebar d-none d-md-flex" [class.is-collapsed]="sidebarCollapsed">
+    <div class="admin-sidebar-inner">
+      <a class="brand-lockup sidebar-brand" [routerLink]="canAdminMyBet()?'/admin/mybet':ADMIN_ROUTES.ROOT.COMMANDS"><img src="/brand/mybetlive-mark.svg" alt=""><span class="sidebar-text brand-wordmark">MYBET<span class="brand-live">LIVE</span></span></a>
+      <div class="text-muted small mb-2 sidebar-title">{{ 'adminSection' | t:'layout' }}</div>
+
+      <div class="list-group list-group-flush">
+        @if (canAdminMyBet()) {
+          @for (item of myBetNavigation; track item.path) {
+            <a class="list-group-item list-group-item-action" [routerLink]="item.path" [class.active]="navActive(item)" [attr.aria-current]="navActive(item)?'page':null" [attr.title]="item.label" [attr.aria-label]="item.label">
+              <i aria-hidden="true" [class]="'bi '+item.icon"></i><span class="sidebar-text">{{item.label}}</span>
+            </a>
+          }
+        }
+        @if (!canAdminMyBet() && canReadUsers()) {
+          <a class="list-group-item list-group-item-action" [routerLink]="ADMIN_ROUTES.USERS.LIST.COMMANDS" routerLinkActive="active">
+            <i aria-hidden="true" class="bi bi-people"></i>
+            <span class="sidebar-text">{{ 'users' | t:'layout' }}</span>
+          </a>
+        }
+
+        @if (!canAdminMyBet() && canReadRoles()) {
+          <a class="list-group-item list-group-item-action" [routerLink]="ADMIN_ROUTES.ROLES.LIST.COMMANDS" routerLinkActive="active">
+            <i aria-hidden="true" class="bi bi-shield-lock"></i>
+            <span class="sidebar-text">{{ 'roles' | t:'layout' }}</span>
+          </a>
+        }
+
+        @if (!canAdminMyBet() && canReadSettings()) {
+          <a class="list-group-item list-group-item-action" [routerLink]="ADMIN_ROUTES.SETTINGS.COMMANDS" routerLinkActive="active">
+            <i aria-hidden="true" class="bi bi-gear"></i>
+            <span class="sidebar-text">{{ 'settings' | t:'layout' }}</span>
+          </a>
+        }
+      </div>
+    </div>
+    <div class="sidebar-profile"><span class="profile-initials">{{ initials() }}</span><div class="sidebar-text"><strong>{{ currentUsername() }}</strong><small>{{ 'adminSection' | t:'layout' }}</small></div></div>
+  </aside>
+
+  <!-- CONTENT -->
+  <main class="admin-content flex-grow-1">
+    <div class="admin-page">
+      <router-outlet></router-outlet>
+      <footer class="admin-footer">MyBetLive · Administración</footer>
+    </div>
+  </main>
+</div>
+
+
+</div>

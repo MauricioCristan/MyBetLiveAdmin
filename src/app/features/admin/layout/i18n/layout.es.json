@@ -1,0 +1,33 @@
+﻿{
+  "brand": "Admin",
+  "toggleSidebar": "Colapsar/Expandir sidebar",
+  "openMenu": "Abrir menú",
+  "logout": "Salir",
+  "adminSection": "Administración",
+  "users": "Usuarios",
+  "roles": "Roles",
+  "settings": "Configuración",
+  "language": "Idioma",
+  "menu": {
+    "label": "Opciones"
+  },
+  "lang": {
+    "es": "ES",
+    "en": "EN"
+  },
+  "confirm": {
+    "title": "Confirmar acción",
+    "deleteTitle": "Confirmar eliminación",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar"
+  },
+  "close": "Cerrar",
+  "home": {
+    "loading": "Validando permisos...",
+    "error": "No se pudieron cargar tus permisos.",
+    "retry": "Reintentar",
+    "noAccessTitle": "Sin acceso a módulos",
+    "noAccessText": "Tu usuario no tiene permiso de lectura para Usuarios, Roles ni Configuración.",
+    "goLogin": "Ir al login"
+  }
+}

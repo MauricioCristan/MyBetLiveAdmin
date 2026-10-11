@@ -1,0 +1,41 @@
+﻿{
+  "login": {
+    "title": "Admin",
+    "subtitle": "Sign in to continue",
+    "username": "Username",
+    "password": "Password",
+    "requiredUser": "Username is required.",
+    "requiredPassword": "Password is required.",
+    "forgot": "Forgot your password?",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "submit": "Sign in",
+    "errorGeneric": "Unable to sign in. Check username/password."
+  },
+  "forgot": {
+    "title": "Recover password",
+    "subtitle": "We'll send you a link to create a new password.",
+    "success": "Done. If the email exists, you will receive a password reset link.",
+    "email": "Email",
+    "emailPlaceholder": "you@email.com",
+    "emailInvalid": "Enter a valid email.",
+    "submit": "Send link",
+    "back": "Back to login",
+    "errorGeneric": "Unable to send email"
+  },
+  "password": {
+    "setTitle": "Create your password",
+    "resetTitle": "Reset password",
+    "setSubtitle": "Set your password to activate access.",
+    "resetSubtitle": "Create a new password for your account.",
+    "success": "Password updated. You can now sign in.",
+    "new": "New password",
+    "confirm": "Confirm password",
+    "min": "Minimum 8 characters.",
+    "submit": "Save password",
+    "goLogin": "Go to login",
+    "tokenMissing": "Missing token in URL.",
+    "notMatch": "Passwords do not match.",
+    "errorGeneric": "Unable to update password"
+  }
+}

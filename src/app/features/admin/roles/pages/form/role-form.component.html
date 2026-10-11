@@ -1,0 +1,198 @@
+﻿<div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-2 mb-3">
+  <div>
+    <h4 class="mb-0">{{ roleId ? ('form.titleEdit' | t:'roles') : ('form.titleNew' | t:'roles') }}</h4>
+    <small class="text-muted">{{ 'form.subtitle' | t:'roles' }}</small>
+  </div>
+
+  <div class="d-flex gap-2">
+    <button class="btn btn-outline-secondary" type="button" (click)="cancel()" [disabled]="loading">
+      {{ 'form.cancel' | t:'roles' }}
+    </button>
+
+    @if (canSave) {
+      <button class="btn btn-primary" type="button" (click)="submit()" [disabled]="loading">
+        @if (loading) {
+          <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+        }
+        {{ 'form.save' | t:'roles' }}
+      </button>
+    }
+  </div>
+</div>
+
+@if (backendError) {
+  <div class="alert alert-danger">
+    {{ backendError }}
+  </div>
+}
+
+<div class="card">
+  <div class="card-body">
+    <form [formGroup]="form" (ngSubmit)="submit()">
+
+      <div class="row g-3">
+        <div class="col-12 col-md-4">
+          <label class="form-label">{{ 'form.code' | t:'roles' }}</label>
+          <input
+            class="form-control"
+            formControlName="code"
+            [placeholder]="'form.codePlaceholder' | t:'roles'"
+            [attr.maxlength]="limits.CODE_MAX"
+          />
+          @if (form.controls.code.touched && form.controls.code.invalid) {
+            <div class="text-danger small mt-1">
+              {{ 'form.codeInvalid' | t:'roles' }}
+            </div>
+          }
+        </div>
+
+        <div class="col-12 col-md-8">
+          <label class="form-label">{{ 'form.name' | t:'roles' }}</label>
+          <input
+            class="form-control"
+            formControlName="name"
+            [placeholder]="'form.namePlaceholder' | t:'roles'"
+            [attr.maxlength]="limits.NAME_MAX"
+          />
+          @if (form.controls.name.touched && form.controls.name.invalid) {
+            <div class="text-danger small mt-1">
+              {{ 'form.nameInvalid' | t:'roles' }}
+            </div>
+          }
+        </div>
+      </div>
+
+      <hr class="my-4" />
+
+      <div class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between gap-2 mb-2">
+        <div>
+          <div class="fw-semibold">{{ 'form.permissions' | t:'roles' }}</div>
+          <small class="text-muted">
+            {{ 'form.selected' | t:'roles' }}: <b>{{ selectedPermissionIds.length }}</b>
+          </small>
+        </div>
+
+        <div class="d-flex flex-column gap-2 w-100">
+          <input
+            class="form-control"
+            [formControl]="permSearchCtrl"
+            [placeholder]="'form.searchPermission' | t:'roles'"
+            [disabled]="!canSave"
+          />
+
+          <div class="d-flex flex-wrap gap-2">
+            <button
+              class="btn btn-outline-secondary"
+              type="button"
+              (click)="selectAllVisible()"
+              [disabled]="permissionsLoading || groups.length === 0 || !canSave"
+            >
+              {{ 'form.selectVisible' | t:'roles' }}
+            </button>
+
+            <button
+              class="btn btn-outline-secondary"
+              type="button"
+              (click)="clearVisible()"
+              [disabled]="permissionsLoading || groups.length === 0 || !canSave"
+            >
+              {{ 'form.clearVisible' | t:'roles' }}
+            </button>
+            <button
+              class="btn btn-outline-danger"
+              type="button"
+              (click)="clearPermissions()"
+              [disabled]="selectedPermissionIds.length === 0 || !canSave"
+            >
+              {{ 'form.clearAll' | t:'roles' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      @if (permissionsLoading) {
+        <div class="text-muted small py-2">
+          {{ 'form.loadingPermissions' | t:'roles' }}
+        </div>
+      }
+
+      @if (!permissionsLoading) {
+        <div class="border rounded p-2" style="max-height: 460px; overflow: auto;">
+          @if (groups.length === 0) {
+            <div class="text-muted small">
+              {{ 'form.emptyPermissions' | t:'roles' }}
+            </div>
+          }
+
+          @if (groups.length > 0) {
+            <div class="accordion" id="permAccordion">
+              @for (g of groups; track g.key; let i = $index) {
+                <div class="accordion-item mb-2">
+
+                  <h2 class="accordion-header" [id]="'permHeading' + i">
+                    <button
+                      class="accordion-button py-2"
+                      type="button"
+                      data-bs-toggle="collapse"
+                      [attr.data-bs-target]="'#permCollapse' + i"
+                      aria-expanded="true"
+                      [attr.aria-controls]="'permCollapse' + i"
+                    >
+                      <div class="d-flex align-items-center justify-content-between w-100 pe-2">
+                        <div class="d-flex align-items-center gap-2">
+                          <span class="fw-semibold">{{ g.key }}</span>
+                          <span class="badge text-bg-light">{{ g.items.length }}</span>
+                        </div>
+
+                        <div class="form-check form-switch m-0" (click)="$event.stopPropagation()">
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            [checked]="isGroupFullySelected(g.key)"
+                            (change)="toggleGroup(g.key, $any($event.target).checked)"
+                            [disabled]="!canSave"
+                          />
+                        </div>
+                      </div>
+                    </button>
+                  </h2>
+
+                  <div
+                    [id]="'permCollapse' + i"
+                    class="accordion-collapse collapse show"
+                    [attr.aria-labelledby]="'permHeading' + i"
+                    data-bs-parent="#permAccordion"
+                  >
+                    <div class="accordion-body py-2">
+
+                      @for (p of g.items; track p.id) {
+                        <div class="form-check py-1">
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            [id]="'perm-' + p.id"
+                            [checked]="isSelected(p.id)"
+                            (change)="togglePermission(p.id, $any($event.target).checked)"
+                            [disabled]="!canSave"
+                          />
+
+                          <label class="form-check-label" [for]="'perm-' + p.id">
+                            {{ p.label }}
+                          </label>
+                        </div>
+                      }
+
+                    </div>
+                  </div>
+
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      <button type="submit" class="d-none"></button>
+    </form>
+  </div>
+</div>

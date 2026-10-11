@@ -1,0 +1,211 @@
+<section class="settings-page" [class.operation-detail]="settingView==='operations'&&!!selectedSport">
+<div class="d-flex flex-wrap gap-3 align-items-center justify-content-between mb-3">
+  <div>
+    <h1 class="mb-0">{{ pageTitle() }}</h1>
+    <p class="text-muted mt-2 mb-0">{{ settingView==='ads'?'Ubicaciones, frecuencia y seguimiento extra para clientes Free.':settingView==='operations'?'Proveedor, frecuencia, presupuesto y caché independientes por deporte.':('subtitle' | t:'settings') }}</p>
+  </div>
+
+  <div class="d-flex flex-wrap gap-2">
+    <button class="btn btn-outline-secondary" (click)="load()" [disabled]="loading || saving">
+      <i aria-hidden="true" class="bi bi-arrow-clockwise me-1"></i>{{ 'reload' | t:'settings' }}
+    </button>
+
+    @if (canUpdateSettings && !overview && !(settingView==='operations'&&selectedSport)) {
+      <button
+        class="btn btn-outline-secondary"
+        (click)="resetChanges()"
+        [disabled]="!hasChanges || loading || saving"
+      >
+        {{ 'discard' | t:'settings' }}
+      </button>
+    }
+
+    @if (canUpdateSettings && !overview && !(settingView==='operations'&&selectedSport)) {
+      <button class="btn btn-primary" (click)="save()" [disabled]="!hasChanges || hasInvalidValues || loading || saving">
+        @if (saving) {
+          <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+        }
+        {{ 'save' | t:'settings' }} {{ hasChanges ? '(' + dirtyCount + ')' : '' }}
+      </button>
+    }
+  </div>
+</div>
+
+@if (backendError) {
+  <div class="alert alert-danger py-2">{{ backendError }}</div>
+}
+@if (successMessage) {
+  <div class="alert alert-success py-2">{{ successMessage }}</div>
+}
+
+@if (loading) {
+  <div class="card shadow-sm">
+    <div class="card-body d-flex align-items-center">
+      <span class="spinner-border spinner-border-sm me-2"></span>
+      {{ 'loading' | t:'settings' }}
+    </div>
+  </div>
+}
+
+@if (operations && settingView==='operations' && !operations.pollingEnabled) {
+  <div class="alert alert-warning">{{ 'pollingOff' | t:'settings' }}</div>
+}
+@if (operationsError) {<div class="alert alert-warning">{{ operationsError }}</div>}
+@if(overview && !loading){
+ <div class="operation-grid">
+ @for(op of operationSports();track op.sport){
+  <article class="card operation-card"><div class="card-body">
+   <div class="operation-heading"><h2>{{ sectionLabel('section.'+op.sport.toLowerCase()).replace('MyBetLive · ','') }}</h2><span class="badge" [class.bg-success]="op.state==='OPERATING'" [class.bg-warning]="op.state!=='OPERATING'">{{ ('states.'+op.state)|t:'settings' }}</span></div>
+   <div class="operation-metrics"><div><span>Proveedor seleccionado</span><strong>{{ op.selectedProvider?providerLabel(op.selectedProvider):'Sin integración' }}</strong></div><div><span>Consumo de hoy · UTC</span><b>{{ op.quota?.localRequestsToday ?? 0 }} / {{ op.quota?.dailyBudget ?? op.config.dailyBudget }}</b></div></div>
+   @for(provider of op.providers ?? [];track provider.name){@if(provider.name!==op.selectedProvider&&provider.quota){<p class="small text-muted mb-3">{{ providerLabel(provider.name) }}: {{ provider.quota.localRequestsToday }} / {{ provider.quota.dailyBudget }}</p>}}
+   <a class="btn btn-outline-secondary" [routerLink]="['/admin/settings/operations',op.sport.toLowerCase()]">{{ 'configure'|t:'settings' }} →</a>
+  </div></article>
+ }
+ </div>
+}
+@if (!loading && settingView==='operations' && selectedSport && !visibleGroups().length){<div class="alert alert-warning" role="status">Este deporte no tiene configuración operativa disponible. <a routerLink="/admin/settings/operations">Volver a proveedores</a></div>}
+@if (!loading) {
+  @for (group of visibleGroups(); track group.section) {
+    <div class="card shadow-sm mb-3" [class.runtime-card]="isRuntime(group.section)">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <strong>{{ sectionLabel(group.section) }}</strong>
+        <small class="text-muted">{{ group.rows.length }} item(s)</small>
+      </div>
+
+      @if (group.section === 'section.ads') {<div class="card-body border-bottom"><p class="mb-0">{{ 'adsHelp' | t:'settings' }}</p></div>}
+      @if (isRuntime(group.section)) {
+        @if (operation(group.section.split('.')[1]); as op) {
+          <div class="card-body border-bottom operation-diagnostics">
+            <p class="small text-muted mb-3">Configuración vigente</p>
+            <span class="badge me-2" [class.bg-success]="op.state === 'OPERATING'" [class.bg-warning]="op.state !== 'OPERATING'" [class.text-dark]="op.state !== 'OPERATING'">{{ ('states.' + op.state) | t:'settings' }}</span>
+            @if (op.selectedProvider) {<strong class="d-inline-block me-2">{{ providerLabel(op.selectedProvider) }}</strong>}
+            @if (op.quota) {
+              <span>{{ 'consumption' | t:'settings' }}: {{ op.quota.localRequestsToday }} / {{ op.quota.dailyBudget }} (UTC)</span>
+              <div class="small text-muted mt-2">{{ 'remoteRemaining' | t:'settings' }}: {{ op.quota.remoteDailyRemaining ?? '—' }} · {{ 'minuteBudget' | t:'settings' }}: {{ op.quota.minuteBudget }}</div>
+              <div class="small text-muted">{{ 'lastSuccess' | t:'settings' }}: {{ op.quota.lastSuccessAt ? (op.quota.lastSuccessAt | date:'dd/MM/yyyy HH:mm') : '—' }}</div>
+            }
+            @if (op.providers && op.providers.length > 1) {
+              @if(!selectedSport){<p class="small text-muted mt-2 mb-1">{{ 'providerHelp' | t:'settings' }}</p>}
+              @for (provider of op.providers; track provider.name) {
+                @if (provider.name !== op.selectedProvider && provider.quota) {
+                  <div class="small text-muted">{{ providerLabel(provider.name) }} · {{ 'consumption' | t:'settings' }}: {{ provider.quota.localRequestsToday }} / {{ provider.quota.dailyBudget }} (UTC)</div>
+                }
+              }
+            }
+          </div>
+        }
+      }
+      <div class="card-body p-0 settings-controls">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0 settings-table">
+            <thead>
+              <tr>
+                <th class="col-description">{{ 'description' | t:'settings' }}</th>
+                <th class="col-value">{{ 'value' | t:'settings' }}</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              @for (item of group.rows; track trackByKey($index, item)) {
+                <tr [class.provider-setting]="item.inputType==='select'" [class.pause-setting]="item.key.endsWith('.paused')">
+                  <td>
+                    <div>{{ item.description || '-' }}</div>
+                    @if (!item.editable) {
+                      <small class="text-muted">{{ 'notEditable' | t:'settings' }}</small>
+                    }
+                  </td>
+
+                  <td>
+                    @switch (item.inputType) {
+                      @case ('select') {
+                        @if(settingView==='operations'){
+                          <fieldset class="provider-choices"><legend class="visually-hidden">{{ item.description }}</legend>
+                           @for(choice of item.options ?? [];track choice){
+                            <label class="provider-choice" [class.chosen]="draftValues[item.key]===choice" [class.unavailable]="!providerConfigured(item,choice)">
+                             <input type="radio" [name]="item.key" [value]="choice" [checked]="draftValues[item.key]===choice" [disabled]="!item.editable||!canUpdateSettings||saving||!providerConfigured(item,choice)" (change)="onValueChange(item.key,choice)">
+                             <span><strong>{{ providerLabel(choice) }}</strong><small>{{ providerConfigured(item,choice)?'Configurado':('notConfigured'|t:'settings') }}</small>@if(providerMarkets(item,choice);as markets){<small>{{ markets.join(' ').includes('PLAYER_')?'Mercados de equipo y props':'Mercados de equipo' }}</small>}@if(providerQuota(item,choice);as quota){<small>{{ quota.localRequestsToday }} / {{ quota.dailyBudget }} · hoy UTC</small>}</span>
+                            </label>
+                           }
+                          </fieldset>
+                        }@else{
+
+                        <select class="form-select" [id]="item.key" [attr.aria-label]="item.description"
+                          [class.is-invalid]="invalid(item)" [ngModel]="draftValues[item.key]"
+                          [ngModelOptions]="{standalone:true}" (ngModelChange)="onValueChange(item.key,$event)"
+                          [disabled]="!item.editable || !canUpdateSettings || saving">
+                          @for (choice of item.options ?? []; track choice) {
+                            <option [value]="choice" [disabled]="!providerConfigured(item,choice)">{{ providerLabel(choice) }}{{ !providerConfigured(item,choice)?' · '+('notConfigured' | t:'settings'):'' }}</option>
+                          }
+                        </select>
+                        }
+                        <small class="text-muted">{{ 'providerHelp' | t:'settings' }}</small>
+                      }
+                      @case ('boolean') {
+                        <div class="form-check form-switch m-0">
+                          <input
+                            class="form-check-input"
+                            [id]="item.key"
+                            [attr.aria-label]="item.description"
+                            type="checkbox"
+                            [checked]="isBooleanTrue(draftValues[item.key])"
+                            [disabled]="!item.editable || !canUpdateSettings || saving"
+                            (change)="onBooleanChange(item.key, $any($event.target).checked)"
+                          />
+                          <label class="form-check-label text-muted ms-2" [for]="item.key">
+                            {{ (isBooleanTrue(draftValues[item.key]) ? 'yes' : 'no') | t:'settings' }}
+                          </label>
+                        </div>
+                      }
+
+                      @case ('number') {
+                        <input
+                          type="number"
+                          class="form-control"
+                          [class.is-invalid]="invalid(item)"
+                          [min]="item.min ?? null" [max]="item.max ?? null" step="1"
+                          [attr.aria-label]="item.description" [attr.aria-invalid]="invalid(item)"
+                          [ngModel]="draftValues[item.key]"
+                          [ngModelOptions]="{ standalone: true }"
+                          (ngModelChange)="onValueChange(item.key, $event)"
+                          [disabled]="!item.editable || !canUpdateSettings || saving"
+                        />
+                        @if (item.unit) {<small class="text-muted">{{ ('units.' + item.unit) | t:'settings' }}</small>}
+                        @if (invalid(item)) {<div class="text-danger small">{{ 'invalidNumber' | t:'settings' }} {{ item.min }}–{{ item.max }}</div>}
+                      }
+                      @default {
+                        <input
+                          type="text"
+                          class="form-control"
+                          [ngModel]="draftValues[item.key]"
+                          [ngModelOptions]="{ standalone: true }"
+                          (ngModelChange)="onValueChange(item.key, $event)"
+                          [disabled]="!item.editable || !canUpdateSettings || saving"
+                        />
+                      }
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (groupedRows.length === 0 && !overview) {
+    <div class="alert alert-light border">{{ 'empty' | t:'settings' }}</div>
+  }
+}
+
+@if(settingView==='operations'&&selectedSport&&canUpdateSettings){
+ <div class="settings-bottom-actions"><button class="btn btn-primary" (click)="save()" [disabled]="!hasChanges||hasInvalidValues||loading||saving">{{ (saving?'loading':'save')|t:'settings' }} {{ hasChanges?'('+dirtyCount+')':'' }}</button><button class="btn btn-outline-secondary" (click)="resetChanges()" [disabled]="!hasChanges||loading||saving">{{ 'discard'|t:'settings' }}</button></div>
+}
+</section>
+
+@if(pendingProviderConfirmation){
+ <app-admin-confirm-dialog [title]="'providerConfirmTitle'|t:'settings'" [confirmLabel]="'providerApply'|t:'settings'" [cancelLabel]="'providerBack'|t:'settings'" (cancel)="pendingProviderConfirmation=false" (confirm)="confirmProviderSave()">
+  <p>{{ 'providerConfirmHelp'|t:'settings' }}</p>
+  <ul class="provider-change-list">@for(change of providerChanges();track change.sport){<li><strong>{{ change.sport }}</strong><span>{{ change.from }} → <b>{{ change.to }}</b></span></li>}</ul>
+ </app-admin-confirm-dialog>
+}
