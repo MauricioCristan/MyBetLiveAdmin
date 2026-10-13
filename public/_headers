@@ -5,3 +5,19 @@
 
 /index.html
   Cache-Control: no-store
+
+/verify-email
+  Referrer-Policy: no-referrer
+  Cache-Control: no-store
+
+/reset-password
+  Referrer-Policy: no-referrer
+  Cache-Control: no-store
+
+/set-password
+  Referrer-Policy: no-referrer
+  Cache-Control: no-store
+
+/.well-known/assetlinks.json
+  Content-Type: application/json
+  Cache-Control: public, max-age=300

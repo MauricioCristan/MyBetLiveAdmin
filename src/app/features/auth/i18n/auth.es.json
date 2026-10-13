@@ -1,4 +1,4 @@
-﻿{
+{
   "login": {
     "title": "Admin",
     "subtitle": "Inicia sesión para continuar",
@@ -36,6 +36,15 @@
     "goLogin": "Ir al login",
     "tokenMissing": "Token faltante en URL.",
     "notMatch": "Las contraseñas no coinciden.",
-    "errorGeneric": "No se pudo actualizar la contraseña"
+    "errorGeneric": "No se pudo actualizar la contraseña",
+    "tooLong": "La contraseña es demasiado larga. Usa menos caracteres."
+  },
+  "verify": {
+    "title": "Confirma tu correo",
+    "subtitle": "Confirma la dirección para comenzar a usar MyBetLive.",
+    "success": "Correo confirmado. Ya puedes iniciar sesión en MyBetLive.",
+    "confirm": "Confirmar correo",
+    "openApp": "Continuar en la app MyBetLive",
+    "return": "Si usas Android, vuelve a MyBetLive para iniciar sesión."
   }
 }

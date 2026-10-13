@@ -6,6 +6,7 @@ import { finalize } from 'rxjs';
 import { PasswordService } from '../password.service';
 import { I18nPipe } from '../../../core/i18n/i18n.pipe';
 import { I18nService } from '../../../core/i18n/i18n.service';
+import { accountAppLink } from '../account-links';
 
 @Component({
   standalone: true,
@@ -25,6 +26,8 @@ export class PasswordConfirmComponent {
   loading = false;
   backendError: string | null = null;
   success = false;
+  readonly android=/Android/i.test(navigator.userAgent);
+  openApp(){const link=accountAppLink('reset',this.token,window.location.href);if(link)window.location.href=link;}
 
   token = (this.route.snapshot.queryParamMap.get('token') || '').trim();
 
@@ -32,7 +35,7 @@ export class PasswordConfirmComponent {
   mode: 'set' | 'reset' = this.router.url.startsWith('/set-password') ? 'set' : 'reset';
 
   form = this.fb.group({
-    newPassword: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(100)]],
+    newPassword: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(72)]],
     confirm: ['', [Validators.required]],
   });
 
@@ -50,8 +53,9 @@ export class PasswordConfirmComponent {
       return;
     }
 
-    const newPassword = (this.form.value.newPassword || '').trim();
-    const confirm = (this.form.value.confirm || '').trim();
+    const newPassword = this.form.value.newPassword || '';
+    const confirm = this.form.value.confirm || '';
+    if(new TextEncoder().encode(newPassword).length>72){this.backendError=this.i18n.translate('auth','password.tooLong');return;}
 
     if (newPassword !== confirm) {
       this.backendError = this.i18n.translate('auth', 'password.notMatch');

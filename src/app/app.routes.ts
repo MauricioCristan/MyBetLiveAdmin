@@ -7,6 +7,10 @@ import { MYBET_ROUTES } from './features/admin/mybet/mybet.routes';
 
 export const routes: Routes = [
   {
+    path:'verify-email',
+    loadComponent:()=>import('./features/auth/email-confirm/email-confirm.component').then(m=>m.EmailConfirmComponent),
+  },
+  {
     path: 'login',
     loadComponent: () =>
       import('./features/auth/login/login.component').then((m) => m.LoginComponent),

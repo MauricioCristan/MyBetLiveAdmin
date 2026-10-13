@@ -12,10 +12,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const storage = inject(TokenStorageService);
   const router = inject(Router);
 
-  const isAuthEndpoint =
-    req.url.includes('/auth/login') ||
-    req.url.includes('/auth/refresh') ||
-    req.url.includes('/auth/logout');
+  const path=new URL(req.url,window.location.origin).pathname;
+  const isAuthEndpoint=/\/api\/v1\/auth\/(login|refresh|logout|register|password\/(forgot|reset)|email\/(verify|resend))$/.test(path);
 
   const token = storage.getAccessToken();
   const tokenType = storage.getTokenType();

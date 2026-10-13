@@ -1,4 +1,4 @@
-﻿{
+{
   "login": {
     "title": "Admin",
     "subtitle": "Sign in to continue",
@@ -36,6 +36,15 @@
     "goLogin": "Go to login",
     "tokenMissing": "Missing token in URL.",
     "notMatch": "Passwords do not match.",
-    "errorGeneric": "Unable to update password"
+    "errorGeneric": "Unable to update password",
+    "tooLong": "The password is too long. Use fewer characters."
+  },
+  "verify": {
+    "title": "Confirm your email",
+    "subtitle": "Confirm your address to start using MyBetLive.",
+    "success": "Email confirmed. You can now sign in to MyBetLive.",
+    "confirm": "Confirm email",
+    "openApp": "Continue in the MyBetLive app",
+    "return": "If you use Android, return to MyBetLive to sign in."
   }
 }

@@ -27,3 +27,17 @@ Fuentes: [Angular en Pages](https://developers.cloudflare.com/pages/framework-gu
 ## Verificación del repositorio independiente
 
 Proyecto `mybetlive-admin` y Angular 22.2.0. Build de producción correcto; 44 pruebas aprobadas. `npm audit` reporta 0 vulnerabilidades después de actualizar dependencias compatibles. El bundle usa Railway, no contiene URLs locales de backend ni source maps y copia `_headers`, marca y fuentes. Quedan dos advertencias de tamaño del presupuesto Angular; no impiden el build. El `src.zip` heredado se conserva como respaldo en `.local`, excluido de Git.
+
+## Confirmación y recuperación de cuentas Android
+
+Se agrega la ruta pública `/verify-email` y una opción para continuar en la app desde `/verify-email` o `/reset-password`, antes de consumir el enlace. El intent limita el paquete a com.mybetlive y usa fallback HTTPS del dominio exacto de producción. Si se completa en navegador, el usuario puede regresar a Android e iniciar sesión. Los enlaces no se confirman automáticamente (evita activación por lectores de correo).
+
+Las rutas sensibles no envían Referer y no se cachean; ninguna operación pública de auth adjunta el JWT guardado. Los formularios de contraseña conservan espacios y validan la longitud UTF-8 admitida por BCrypt. Después de publicar estos cambios debe configurarse SMTP en Railway; los secretos no se agregan a Cloudflare.
+
+Registro y recuperación: 47 pruebas web sin fallos; build de producción correcto. Validado que las rutas públicas de auth no reciben JWT viejos y que los intents rechazan tokens inválidos y dominios de fallback ajenos. La recepción de correo real requiere configurar SMTP en Railway.
+
+## Android App Links
+
+`public/.well-known/assetlinks.json` asocia el dominio `mybetliveadmin.pages.dev` con `com.mybetlive` y el certificado SHA-256 de la APK release actual. Debe copiarse al build en `dist/cloudflare/browser/.well-known/assetlinks.json` y servirse como JSON con HTTP 200, sin redirecciones. Android limita los enlaces a `/reset-password` y `/verify-email`; el resto del admin continúa en navegador. El formulario y el botón para abrir Android permanecen disponibles como alternativa.
+
+Cuando se publique con Google Play App Signing, agregar la huella SHA-256 del certificado de firma de aplicación de Play Console, que puede ser distinta de la clave de subida. La huella es pública; ninguna clave privada debe estar en este archivo. No agregar la firma debug al dominio de producción.

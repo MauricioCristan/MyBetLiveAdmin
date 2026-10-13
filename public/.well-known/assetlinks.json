@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.mybetlive",
+      "sha256_cert_fingerprints": [
+        "A3:14:72:13:46:E1:16:26:B8:CE:23:06:0F:4A:D3:76:DE:9D:4D:7C:11:D1:17:1D:0D:29:14:70:AF:88:4F:3B"
+      ]
+    }
+  }
+]
