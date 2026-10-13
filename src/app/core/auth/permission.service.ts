@@ -1,6 +1,6 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, map, of, tap } from 'rxjs';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Observable, finalize, map, of, tap, shareReplay } from 'rxjs';
 
 import { environment } from '../../../enviroment/environment';
 import { MeResponse } from './auth.models';
@@ -12,6 +12,7 @@ export class PermissionService {
   private readonly meState = signal<MeResponse | null>(null);
   private readonly loadedState = signal(false);
   private inflight$: Observable<void> | null = null;
+  private revision=0;
 
   readonly me = computed(() => this.meState());
   readonly loaded = computed(() => this.loadedState());
@@ -20,22 +21,24 @@ export class PermissionService {
     if (this.loadedState()) return of(void 0);
     if (this.inflight$) return this.inflight$;
 
-    this.inflight$ = this.fetchMe().pipe(
-      tap(() => {
-        this.inflight$ = null;
-      })
+    const revision=this.revision;
+    this.inflight$ = this.fetchMe(revision).pipe(
+      finalize(() => { if(revision===this.revision)this.inflight$ = null; }),
+      shareReplay({bufferSize:1,refCount:false})
     );
 
     return this.inflight$;
   }
 
   refresh(): Observable<void> {
+    if(this.inflight$)return this.inflight$;
     this.loadedState.set(false);
     this.inflight$ = null;
     return this.ensureLoaded();
   }
 
   clear(): void {
+    this.revision++;
     this.meState.set(null);
     this.loadedState.set(false);
     this.inflight$ = null;
@@ -74,9 +77,10 @@ export class PermissionService {
     return this.hasPermission(module, 'DELETE');
   }
 
-  private fetchMe(): Observable<void> {
+  private fetchMe(revision:number): Observable<void> {
     return this.http.get<MeResponse>(`${environment.apiBaseUrl}/me`).pipe(
       tap((me) => {
+        if(revision!==this.revision)throw new HttpErrorResponse({status:409,statusText:'Session changed'});
         this.meState.set({
           username: me.username,
           authorities: (me.authorities || []).map((a) => `${a}`.trim()).filter((a) => a.length > 0),

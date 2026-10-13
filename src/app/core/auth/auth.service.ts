@@ -5,16 +5,18 @@ import { environment } from '../../../enviroment/environment';
 import { AuthTokens, LoginRequest } from './auth.models';
 import { TokenStorageService } from './token-storage.service';
 import { PermissionService } from './permission.service';
+import { SessionRenewalService } from './session-renewal.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly storage = inject(TokenStorageService);
   private readonly permissions = inject(PermissionService);
+  private readonly renewal=inject(SessionRenewalService);
 
   login(payload: LoginRequest): Observable<AuthTokens> {
     return this.http
-      .post<AuthTokens>(`${environment.apiBaseUrl}/auth/login`, payload)
+      .post<AuthTokens>(`${environment.apiBaseUrl}/auth/admin/login`, payload)
       .pipe(tap((tokens) => {
         this.storage.setTokens(tokens);
         this.permissions.clear();
@@ -22,15 +24,7 @@ export class AuthService {
   }
 
   refresh(): Observable<AuthTokens> {
-    const refreshToken = this.storage.getRefreshToken();
-    if (!refreshToken) {
-      // No hacemos throw aquí para no romper flujos; quien llame decide.
-      return this.http.post<AuthTokens>(`${environment.apiBaseUrl}/auth/refresh`, { refreshToken: '' });
-    }
-
-    return this.http
-      .post<AuthTokens>(`${environment.apiBaseUrl}/auth/refresh`, { refreshToken })
-      .pipe(tap((tokens) => this.storage.setTokens(tokens)));
+    return this.renewal.renew(this.storage.getAccessToken());
   }
 
   logout(): Observable<void> {
