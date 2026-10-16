@@ -30,7 +30,7 @@ export interface SoccerLeague {id:number;name:string;country:string;enabled:bool
 export interface RemoteLeague {id:number;name:string;country:string;}
 export interface ManagedSport {code:string;name:string;description:string;enabled:boolean;integrated:boolean;available:boolean;version:number;}
 export interface SportIntegration {code:string;integrated:boolean;defaultLeagueId:number|null;leagueDiscovery:boolean;}
-export interface ManagedLeague {id:string;sportCode:string;externalId:number|null;name:string;country:string;enabled:boolean;version:number;}
+export interface ManagedLeague {id:string;sportCode:string;externalId:number|null;name:string;country:string;enabled:boolean;version:number;regulationInnings?:number|null;}
 @Injectable({providedIn:'root'})
 export class MyBetService {
  private readonly http=inject(HttpClient);

@@ -13,7 +13,7 @@ export const MYBET_ROUTES: Routes = [
   path:'mybet'+(path?'/'+path:''),pathMatch:'full' as const,canActivate:[myBetAdminGuard],data:{section},loadComponent:()=>import('./mybet.page').then(m=>m.MyBetPage)
  })),
  {path:'mybet/football',pathMatch:'full',redirectTo:'mybet/leagues'},
- {path:'mybet/baseball',pathMatch:'full',redirectTo:'mybet/sports'},
+ {path:'mybet/baseball',pathMatch:'full',redirectTo:'mybet/leagues'},
  ...['overview','bets'].map(path=>({path:'mybet/'+path,pathMatch:'full' as const,redirectTo:'mybet'})),
  {path:'mybet/plans',pathMatch:'full',redirectTo:'mybet/subscriptions/plans'},
 ];

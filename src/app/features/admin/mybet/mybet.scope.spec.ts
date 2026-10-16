@@ -33,7 +33,7 @@ describe('MyBet management navigation and forms',()=>{
   http.expectNone(request=>request.url.includes('/tracking/')||request.url===base+'/bets'||request.url===base+'/overview');
  }
  async function settle(){await harness.fixture.whenStable();harness.detectChanges();}
- it.each([['','/admin/mybet'],['/overview','/admin/mybet'],['/bets','/admin/mybet'],['/football','/admin/mybet/leagues'],['/baseball','/admin/mybet/sports']])
+ it.each([['','/admin/mybet'],['/overview','/admin/mybet'],['/bets','/admin/mybet'],['/football','/admin/mybet/leagues'],['/baseball','/admin/mybet/leagues']])
  ('routes /admin/mybet%s to an administrative page',async(suffix,target)=>{
   await harness.navigateByUrl('/admin/mybet'+suffix);expect(TestBed.inject(Router).url).toBe(target);
   if(target.endsWith('leagues')){http.expectOne(base+'/leagues').flush([{id:'SOCCER:262',sportCode:'SOCCER',externalId:262,name:'Liga MX',country:'Mexico',enabled:true,version:0}]);http.expectOne(base+'/sports').flush(sports);}

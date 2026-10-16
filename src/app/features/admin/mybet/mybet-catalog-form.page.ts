@@ -43,12 +43,14 @@ export class MyBetCatalogFormPage {
    this.ready.set(true);
   }catch(e){this.fail(e);}finally{this.busy.set(false);}
  }
+ catalogSelection(){return this.form.controls.sportCode.value==='SOCCER'||['MLB','NBA','NFL','NHL'].includes(this.form.controls.sportCode.value??'')&&!!this.selectedIntegration()?.leagueDiscovery;}
+ catalogName(){return this.form.controls.sportCode.value==='MLB'?'API-Baseball':this.form.controls.sportCode.value==='NBA'?'API-Basketball':this.form.controls.sportCode.value==='NFL'?'API de fútbol americano':this.form.controls.sportCode.value==='NHL'?'API-Hockey':'API-Football';}
  selectedSport(){return this.sports().find(s=>s.code===this.form.getRawValue().sportCode);}
  selectedIntegration(){return this.integrations().find(i=>i.code===this.form.controls.sportCode.value);}
  sportChanged(){
   const code=this.form.controls.sportCode.value;this.results.set([]);this.query='';this.countryFilter='';this.discoveryError.set('');this.discoveryRequest++;this.discovering.set(false);
   this.form.patchValue({externalId:this.integrations().find(i=>i.code===code)?.defaultLeagueId??null,enabled:false,name:'',country:''});
-  if(code==='SOCCER')void this.loadAvailable();
+  if(this.catalogSelection())void this.loadAvailable();
  }
  selectLeague(item:RemoteLeague){if(this.isRegistered(item.id))return;this.form.patchValue({externalId:item.id,name:item.name,country:item.country,enabled:true});}
  isRegistered(id:number){return this.registered().some(l=>l.sportCode===this.form.controls.sportCode.value&&l.externalId===id);}
@@ -56,10 +58,11 @@ export class MyBetCatalogFormPage {
  filteredAvailable(){const q=this.query.trim().toLowerCase();return this.results().filter(l=>(!this.countryFilter||l.country===this.countryFilter)&&(!q||(l.name+' '+l.country).toLowerCase().includes(q)));}
  chooseAvailable(event:Event){const id=Number((event.target as HTMLSelectElement).value);const item=this.results().find(l=>l.id===id);if(item)this.selectLeague(item);else this.form.patchValue({externalId:null,name:'',country:'',enabled:false});}
  async loadAvailable(){
-  if(this.discovering()||this.form.controls.sportCode.value!=='SOCCER')return;
+  if(this.discovering()||!this.catalogSelection())return;
+  const sport=this.form.controls.sportCode.value!;
   const request=++this.discoveryRequest;this.discovering.set(true);this.discoveryError.set('');
-  try{const items=await firstValueFrom(this.api.availableLeagues('SOCCER'));if(request===this.discoveryRequest)this.results.set(items);}
-  catch(e:any){if(request===this.discoveryRequest)this.discoveryError.set(e?.error?.message||'No se pudo cargar el catálogo de API-Football.');}
+  try{const items=await firstValueFrom(this.api.availableLeagues(sport));if(request===this.discoveryRequest)this.results.set(items);}
+  catch(e:any){if(request===this.discoveryRequest)this.discoveryError.set(e?.error?.message||'No se pudo cargar el catálogo de '+this.catalogName()+'.');}
   finally{if(request===this.discoveryRequest)this.discovering.set(false);}
  }
  async search(){
@@ -71,7 +74,7 @@ export class MyBetCatalogFormPage {
   const value=this.form.getRawValue();const connected=!!this.integrations().find(i=>i.code===(this.isSport?value.code:value.sportCode))?.integrated;
   if(value.enabled&&!connected){this.error.set('Guarda como borrador hasta que el deporte tenga una integración disponible.');return;}
   if(!this.isSport&&connected&&!value.externalId){this.error.set('Selecciona el identificador de la liga.');return;}
-  if(!this.isSport&&!this.id&&value.sportCode==='SOCCER'&&!this.results().some(l=>l.id===value.externalId)){this.error.set('Selecciona una liga del catálogo de API-Football.');return;}
+  if(!this.isSport&&!this.id&&this.catalogSelection()&&!this.results().some(l=>l.id===value.externalId)){this.error.set('Selecciona una liga del catálogo de '+this.catalogName()+'.');return;}
   this.busy.set(true);this.error.set('');
   try{
    if(this.isSport)await firstValueFrom(this.api.saveSport({code:value.code!,name:value.name!.trim(),description:value.description?.trim()??'',enabled:!!value.enabled,version:this.version},this.id));

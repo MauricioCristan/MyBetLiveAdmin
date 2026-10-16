@@ -4,6 +4,7 @@ import { of } from 'rxjs';
 import { MyBetCatalogFormPage } from './mybet-catalog-form.page';
 import { MyBetService } from './mybet.service';
 describe('MyBet catalog forms',()=>{
+ afterEach(()=>vi.restoreAllMocks());
  const soccer={code:'SOCCER',name:'Fútbol',description:'',enabled:true,integrated:true,available:true,version:0};
  const api={leagues:()=>of([]),availableLeagues:vi.fn(()=>of([{id:72,name:'Serie B',country:'Brazil'}])),sports:()=>of([soccer]),capabilities:()=>of([{code:'SOCCER',integrated:true,defaultLeagueId:null,leagueDiscovery:true}]),searchLeagues:vi.fn(()=>of([{id:72,name:'Serie B',country:'Brazil'}])),saveLeague:vi.fn(()=>of({})),saveSport:vi.fn(()=>of({}))};
  async function page(entity='leagues'){
@@ -39,5 +40,40 @@ describe('MyBet catalog forms',()=>{
  it('uses the league identifier supplied by capabilities',async()=>{
   const component=await page();component.integrations.set([{code:'HOCKEY',integrated:true,defaultLeagueId:7,leagueDiscovery:false}]);
   component.form.controls.sportCode.setValue('HOCKEY');component.sportChanged();expect(component.form.controls.externalId.value).toBe(7);
+ });
+ it('registers baseball leagues from its catalogue without requiring innings',async()=>{
+  vi.spyOn(api,'sports').mockReturnValue(of([soccer,{...soccer,code:'MLB',name:'Béisbol'}]));
+  vi.spyOn(api,'capabilities').mockReturnValue(of([{code:'SOCCER',integrated:true,defaultLeagueId:null,leagueDiscovery:true},{code:'MLB',integrated:true,defaultLeagueId:null,leagueDiscovery:true}]));
+  api.availableLeagues.mockImplementation((sport?:string)=>of(sport==='MLB'?[{id:2,name:'Liga Mexicana',country:'Mexico'}]:[{id:72,name:'Serie B',country:'Brazil'}]));
+  const component=await page();component.form.controls.sportCode.setValue('MLB');component.sportChanged();await Promise.resolve();await Promise.resolve();
+  expect(api.availableLeagues).toHaveBeenLastCalledWith('MLB');expect(component.catalogName()).toBe('API-Baseball');
+  component.query='Mexico';expect(component.filteredAvailable().map(l=>l.id)).toEqual([2]);
+  component.selectLeague({id:2,name:'Liga Mexicana',country:'Mexico'});await component.save();
+  expect(api.saveLeague).toHaveBeenCalledWith({sportCode:'MLB',externalId:2,name:'Liga Mexicana',country:'Mexico',enabled:true,version:0},null);
+ });
+ it('registers basketball leagues from the provider catalogue',async()=>{
+  vi.spyOn(api,'sports').mockReturnValue(of([soccer,{...soccer,code:'NBA',name:'Baloncesto'}]));
+  vi.spyOn(api,'capabilities').mockReturnValue(of([{code:'NBA',integrated:true,defaultLeagueId:null,leagueDiscovery:true}]));
+  api.availableLeagues.mockImplementation(()=>of([{id:63,name:'LNBP',country:'Mexico'}]));
+  const component=await page();component.form.controls.sportCode.setValue('NBA');component.sportChanged();await Promise.resolve();await Promise.resolve();
+  expect(api.availableLeagues).toHaveBeenLastCalledWith('NBA');expect(component.catalogName()).toBe('API-Basketball');
+  component.selectLeague({id:63,name:'LNBP',country:'Mexico'});await component.save();
+  expect(api.saveLeague).toHaveBeenCalledWith({sportCode:'NBA',externalId:63,name:'LNBP',country:'Mexico',enabled:true,version:0},null);
+ }); it('registers hockey leagues from the provider catalogue',async()=>{
+  vi.spyOn(api,'sports').mockReturnValue(of([soccer,{...soccer,code:'NHL',name:'Hockey sobre hielo'}]));
+  vi.spyOn(api,'capabilities').mockReturnValue(of([{code:'NHL',integrated:true,defaultLeagueId:null,leagueDiscovery:true}]));
+  api.availableLeagues.mockImplementation(()=>of([{id:35,name:'KHL',country:'Russia'}]));
+  const component=await page();component.form.controls.sportCode.setValue('NHL');component.sportChanged();await Promise.resolve();await Promise.resolve();
+  expect(api.availableLeagues).toHaveBeenLastCalledWith('NHL');expect(component.catalogName()).toBe('API-Hockey');
+  component.selectLeague({id:35,name:'KHL',country:'Russia'});await component.save();
+  expect(api.saveLeague).toHaveBeenCalledWith({sportCode:'NHL',externalId:35,name:'KHL',country:'Russia',enabled:true,version:0},null);
+ }); it('registers American football leagues from the provider catalogue',async()=>{
+  vi.spyOn(api,'sports').mockReturnValue(of([soccer,{...soccer,code:'NFL',name:'Fútbol americano'}]));
+  vi.spyOn(api,'capabilities').mockReturnValue(of([{code:'NFL',integrated:true,defaultLeagueId:null,leagueDiscovery:true}]));
+  api.availableLeagues.mockImplementation(()=>of([{id:2,name:'NCAA',country:'USA'}]));
+  const component=await page();component.form.controls.sportCode.setValue('NFL');component.sportChanged();await Promise.resolve();await Promise.resolve();
+  expect(api.availableLeagues).toHaveBeenLastCalledWith('NFL');expect(component.catalogName()).toBe('API de fútbol americano');
+  component.selectLeague({id:2,name:'NCAA',country:'USA'});await component.save();
+  expect(api.saveLeague).toHaveBeenCalledWith({sportCode:'NFL',externalId:2,name:'NCAA',country:'USA',enabled:true,version:0},null);
  });
 });
