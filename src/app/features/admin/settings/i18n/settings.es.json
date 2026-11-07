@@ -17,7 +17,7 @@
     "nfl": "MyBetLive · NFL",
     "soccer": "MyBetLive · Fútbol",
     "mlb": "MyBetLive · Béisbol",
-    "nba": "MyBetLive · NBA"
+    "nba": "MyBetLive · Baloncesto"
   },
   "notEditable": "No editable desde UI",
   "adsHelp": "Solo clientes Free: anuncios nativos en Partidos, Seguimientos (Activos y Anclados) e Historial y, voluntariamente, un anuncio recompensado para obtener 1 seguimiento extra hasta terminar. Premium no carga anuncios. Cada sección tiene su interruptor. El bloque recompensado es independiente del nativo; configura su recompensa como tracking_slot, cantidad 1, y verificación SSV en el backend. Debug usa pruebas, únicamente con el backend local habilitado. Para producción configura el App ID de Android y los bloques propios, el consentimiento y SSV; después desactiva el modo de prueba. Sin anuncios automáticos en detalles ni notificaciones. La frecuencia cuenta tarjetas; las listas cortas tienen un anuncio al final. Los cambios llegan al actualizar el plan en Android.",

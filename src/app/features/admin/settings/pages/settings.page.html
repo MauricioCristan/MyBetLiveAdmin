@@ -123,7 +123,18 @@
                            @for(choice of item.options ?? [];track choice){
                             <label class="provider-choice" [class.chosen]="draftValues[item.key]===choice" [class.unavailable]="!providerConfigured(item,choice)">
                              <input type="radio" [name]="item.key" [value]="choice" [checked]="draftValues[item.key]===choice" [disabled]="!item.editable||!canUpdateSettings||saving||!providerConfigured(item,choice)" (change)="onValueChange(item.key,choice)">
-                             <span><strong>{{ providerLabel(choice) }}</strong><small>{{ providerConfigured(item,choice)?'Configurado':('notConfigured'|t:'settings') }}</small>@if(providerMarkets(item,choice);as markets){<small>{{ markets.join(' ').includes('PLAYER_')?'Mercados de equipo y props':'Mercados de equipo' }}</small>}@if(providerQuota(item,choice);as quota){<small>{{ quota.localRequestsToday }} / {{ quota.dailyBudget }} · hoy UTC</small>}</span>
+                             <span>
+                              <strong>{{ providerLabel(choice) }}</strong>
+                              <small>{{ providerConfigured(item,choice)?'Configurado':('notConfigured'|t:'settings') }}</small>
+                              @if(basketballProviderCoverage(choice);as coverage){
+                                <small>{{ coverage }}</small>
+                                @if(operation('nba')?.selectedProvider;as activeProvider){
+                                  <small>{{ choice===activeProvider?'Activo para nuevos seguimientos':'Proveedor alternativo' }}</small>
+                                }
+                              }
+                              @if(providerMarkets(item,choice);as markets){<small>{{ markets.join(' ').includes('PLAYER_')?'Mercados de equipo y props':'Mercados de equipo' }}</small>}
+                              @if(providerQuota(item,choice);as quota){<small>{{ quota.localRequestsToday }} / {{ quota.dailyBudget }} · hoy UTC</small>}
+                             </span>
                             </label>
                            }
                           </fieldset>

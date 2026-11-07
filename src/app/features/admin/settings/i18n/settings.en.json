@@ -17,7 +17,7 @@
     "nfl": "MyBetLive · NFL",
     "soccer": "MyBetLive · Football",
     "mlb": "MyBetLive · Baseball",
-    "nba": "MyBetLive · NBA"
+    "nba": "MyBetLive · Basketball"
   },
   "notEditable": "Not editable from UI",
   "adsHelp": "Free customers: native ads in Games, Trackers (Active and Pinned), and History, plus an optional rewarded ad for 1 extra tracker until it finishes. Premium never loads ads. Each section has its own switch. The rewarded unit is separate: configure tracking_slot, amount 1, and backend SSV verification. Debug uses test ads with the local backend only. Production requires your Android App ID, ad units, consent and SSV configuration before turning off test mode. No automatic ads in details or notifications. Frequency counts cards; short lists have one ad at the end. Android picks up changes when refreshing subscription data.",

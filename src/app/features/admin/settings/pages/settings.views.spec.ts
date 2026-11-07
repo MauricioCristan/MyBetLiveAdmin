@@ -45,13 +45,21 @@ describe('MyBetLive provider and advertising views',()=>{
  });
  it('distinguishes API-Basketball from API-NBA when selecting a basketball provider',async()=>{
   route.snapshot.paramMap=convertToParamMap({sport:'nba'});
-  api.list.mockReturnValueOnce(of([{key:'mybet.runtime.nba.provider',value:'API_SPORTS_NBA',description:'Proveedor',editable:true,type:'select',options:['API_SPORTS_BASKETBALL','API_SPORTS_NBA']}]));
+  api.list.mockReturnValueOnce(of([{key:'mybet.runtime.nba.provider',value:'API_SPORTS_BASKETBALL',description:'Proveedor',editable:true,type:'select',options:['API_SPORTS_BASKETBALL','API_SPORTS_NBA']}]));
+  api.operations.mockReturnValueOnce(of({...operations,sports:[{...operations.sports[0],sport:'NBA',selectedProvider:'API_SPORTS_BASKETBALL'}]}));
   const f=await page();
   const choices=f.nativeElement.querySelectorAll('.provider-choice') as NodeListOf<HTMLLabelElement>;
   expect(Array.from(choices,choice=>[choice.querySelector('input')?.value,choice.querySelector('strong')?.textContent])).toEqual([
    ['API_SPORTS_BASKETBALL','API-Basketball'],['API_SPORTS_NBA','API-NBA'],
   ]);
-  expect(f.nativeElement.querySelector('input[value="API_SPORTS_NBA"]').checked).toBe(true);
+  expect(choices[0].textContent).toContain('NBA y otras ligas de baloncesto');
+  expect(choices[0].textContent).toContain('Activo para nuevos seguimientos');
+  expect(choices[1].textContent).toContain('Solo NBA');
+  expect(choices[1].textContent).toContain('Proveedor alternativo');
+  f.componentInstance.onValueChange('mybet.runtime.nba.provider','API_SPORTS_NBA');
+  f.detectChanges();
+  expect(choices[1].querySelector('input')?.checked).toBe(true);
+  expect(choices[0].textContent).toContain('Activo para nuevos seguimientos');
  });
  it('limits the advertising view to its settings and discards drafts',async()=>{
   route.snapshot.data.settingView='ads';const f=await page();const c=f.componentInstance;

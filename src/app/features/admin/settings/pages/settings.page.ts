@@ -256,6 +256,14 @@ export class SettingsPageComponent implements OnInit {
       default: return name.startsWith('BALLDONTLIE_')?'BALLDONTLIE':name.startsWith('API_SPORTS_')?'API-Sports':name;
     }
   }
+  basketballProviderCoverage(name: string): string | null {
+    switch (name) {
+      case 'API_SPORTS_BASKETBALL': return 'NBA y otras ligas de baloncesto';
+      case 'API_SPORTS_NBA':
+      case 'BALLDONTLIE_NBA': return 'Solo NBA';
+      default: return null;
+    }
+  }
   providerConfigured(row: SettingView,name: string): boolean {
     const sport=row.section.slice('section.'.length);return this.operation(sport)?.providers?.find(p=>p.name===name)?.configured ?? true;
   }
