@@ -2,17 +2,18 @@ import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 import { MyBetCatalogFormPage } from './mybet-catalog-form.page';
-import { MyBetService } from './mybet.service';
+import { ManagedLeague, MyBetService, SportIntegration } from './mybet.service';
 describe('MyBet catalog forms',()=>{
  afterEach(()=>vi.restoreAllMocks());
  const soccer={code:'SOCCER',name:'Fútbol',description:'',enabled:true,integrated:true,available:true,version:0};
- const api={leagues:()=>of([]),availableLeagues:vi.fn(()=>of([{id:72,name:'Serie B',country:'Brazil'}])),sports:()=>of([soccer]),capabilities:()=>of([{code:'SOCCER',integrated:true,defaultLeagueId:null,leagueDiscovery:true}]),searchLeagues:vi.fn(()=>of([{id:72,name:'Serie B',country:'Brazil'}])),saveLeague:vi.fn(()=>of({})),saveSport:vi.fn(()=>of({}))};
- async function page(entity='leagues'){
+ const api={leagues:()=>of<ManagedLeague[]>([]),availableLeagues:vi.fn(()=>of([{id:72,name:'Serie B',country:'Brazil'}])),sports:()=>of([soccer]),capabilities:()=>of<SportIntegration[]>([{code:'SOCCER',integrated:true,defaultLeagueId:null,leagueDiscovery:true}]),searchLeagues:vi.fn(()=>of([{id:72,name:'Serie B',country:'Brazil'}])),saveLeague:vi.fn(()=>of({})),saveSport:vi.fn(()=>of({}))};
+ async function pageFixture(entity='leagues'){
   vi.clearAllMocks();await TestBed.configureTestingModule({imports:[MyBetCatalogFormPage],providers:[provideRouter([]),
    {provide:ActivatedRoute,useValue:{snapshot:{data:{entity},paramMap:convertToParamMap({})}}},{provide:MyBetService,useValue:api}]}).compileComponents();
   vi.spyOn(TestBed.inject(Router),'navigateByUrl').mockResolvedValue(true);
-  const fixture=TestBed.createComponent(MyBetCatalogFormPage);await fixture.whenStable();return fixture.componentInstance;
+  const fixture=TestBed.createComponent(MyBetCatalogFormPage);await fixture.whenStable();return fixture;
  }
+ async function page(entity='leagues'){return (await pageFixture(entity)).componentInstance;}
  it('does not spend football quota for searches shorter than three characters',async()=>{const component=await page();component.form.controls.sportCode.setValue('SOCCER');component.query='ab';await component.search();expect(api.searchLeagues).not.toHaveBeenCalled();});
  it('loads football automatically and filters locally without more provider requests',async()=>{
   const component=await page();expect(component.form.controls.sportCode.value).toBe('SOCCER');expect(api.availableLeagues).toHaveBeenCalledTimes(1);
@@ -59,7 +60,22 @@ describe('MyBet catalog forms',()=>{
   expect(api.availableLeagues).toHaveBeenLastCalledWith('NBA');expect(component.catalogName()).toBe('API-Basketball');
   component.selectLeague({id:63,name:'LNBP',country:'Mexico'});await component.save();
   expect(api.saveLeague).toHaveBeenCalledWith({sportCode:'NBA',externalId:63,name:'LNBP',country:'Mexico',enabled:true,version:0},null);
- }); it('registers hockey leagues from the provider catalogue',async()=>{
+ });
+ it('shows how to add more basketball leagues when the active provider only offers the registered NBA league',async()=>{
+  vi.spyOn(api,'sports').mockReturnValue(of([{...soccer,code:'NBA',name:'Baloncesto'}]));
+  vi.spyOn(api,'capabilities').mockReturnValue(of([{code:'NBA',integrated:true,defaultLeagueId:1,leagueDiscovery:false}]));
+  vi.spyOn(api,'leagues').mockReturnValue(of([{id:'NBA:1',sportCode:'NBA',externalId:1,name:'NBA',country:'USA',enabled:true,version:0}]));
+  const fixture=await pageFixture();
+  const sport=fixture.nativeElement.querySelector('#league-sport') as HTMLSelectElement;
+  sport.value='NBA';
+  sport.dispatchEvent(new Event('change'));
+  await fixture.whenStable();
+  expect(fixture.nativeElement.querySelector('a[href="/admin/settings/operations/nba"]')?.textContent).toContain('Configurar proveedor');
+  expect(fixture.nativeElement.textContent).toContain('Editar NBA');
+  expect(fixture.nativeElement.textContent).not.toContain('Guardar liga');
+  expect(api.availableLeagues).not.toHaveBeenCalled();
+ });
+ it('registers hockey leagues from the provider catalogue',async()=>{
   vi.spyOn(api,'sports').mockReturnValue(of([soccer,{...soccer,code:'NHL',name:'Hockey sobre hielo'}]));
   vi.spyOn(api,'capabilities').mockReturnValue(of([{code:'NHL',integrated:true,defaultLeagueId:null,leagueDiscovery:true}]));
   api.availableLeagues.mockImplementation(()=>of([{id:35,name:'KHL',country:'Russia'}]));

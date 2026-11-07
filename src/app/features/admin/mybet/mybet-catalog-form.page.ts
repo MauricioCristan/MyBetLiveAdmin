@@ -47,6 +47,15 @@ export class MyBetCatalogFormPage {
  catalogName(){return this.form.controls.sportCode.value==='MLB'?'API-Baseball':this.form.controls.sportCode.value==='NBA'?'API-Basketball':this.form.controls.sportCode.value==='NFL'?'API de fútbol americano':this.form.controls.sportCode.value==='NHL'?'API-Hockey':'API-Football';}
  selectedSport(){return this.sports().find(s=>s.code===this.form.getRawValue().sportCode);}
  selectedIntegration(){return this.integrations().find(i=>i.code===this.form.controls.sportCode.value);}
+ basketballWithoutCatalogue(){
+  const integration=this.selectedIntegration();
+  return this.ready()&&!this.id&&integration?.code==='NBA'&&!integration.leagueDiscovery;
+ }
+ registeredBasketballLeague(){
+  if(!this.basketballWithoutCatalogue())return undefined;
+  const defaultId=this.selectedIntegration()?.defaultLeagueId;
+  return this.registered().find(league=>league.sportCode==='NBA'&&league.externalId===defaultId);
+ }
  sportChanged(){
   const code=this.form.controls.sportCode.value;this.results.set([]);this.query='';this.countryFilter='';this.discoveryError.set('');this.discoveryRequest++;this.discovering.set(false);
   this.form.patchValue({externalId:this.integrations().find(i=>i.code===code)?.defaultLeagueId??null,enabled:false,name:'',country:''});
