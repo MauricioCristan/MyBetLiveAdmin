@@ -43,6 +43,16 @@ describe('MyBetLive provider and advertising views',()=>{
   buttons[1].focus();document.dispatchEvent(new KeyboardEvent('keydown',{key:'Tab',bubbles:true,cancelable:true}));expect(document.activeElement).toBe(buttons[0]);
   c.confirmProviderSave();expect(api.update).toHaveBeenCalledWith({'mybet.runtime.mlb.provider':'BALLDONTLIE_MLB'});
  });
+ it('distinguishes API-Basketball from API-NBA when selecting a basketball provider',async()=>{
+  route.snapshot.paramMap=convertToParamMap({sport:'nba'});
+  api.list.mockReturnValueOnce(of([{key:'mybet.runtime.nba.provider',value:'API_SPORTS_NBA',description:'Proveedor',editable:true,type:'select',options:['API_SPORTS_BASKETBALL','API_SPORTS_NBA']}]));
+  const f=await page();
+  const choices=f.nativeElement.querySelectorAll('.provider-choice') as NodeListOf<HTMLLabelElement>;
+  expect(Array.from(choices,choice=>[choice.querySelector('input')?.value,choice.querySelector('strong')?.textContent])).toEqual([
+   ['API_SPORTS_BASKETBALL','API-Basketball'],['API_SPORTS_NBA','API-NBA'],
+  ]);
+  expect(f.nativeElement.querySelector('input[value="API_SPORTS_NBA"]').checked).toBe(true);
+ });
  it('limits the advertising view to its settings and discards drafts',async()=>{
   route.snapshot.data.settingView='ads';const f=await page();const c=f.componentInstance;
   expect(c.visibleGroups().map(g=>g.section)).toEqual(['section.ads']);expect(f.nativeElement.querySelector('.provider-choice')).toBeNull();

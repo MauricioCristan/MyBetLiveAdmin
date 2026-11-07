@@ -248,7 +248,14 @@ export class SettingsPageComponent implements OnInit {
   operation(sport: string) {return this.operations?.sports.find(item => item.sport.toLowerCase() === sport);}
   isRuntime(section: string): boolean {return this.rows.some(row=>row.section===section&&row.key.startsWith('mybet.runtime.'));}
   sectionLabel(section:string):string {const label=this.i18n.translate('settings',section);return label===section?section.slice('section.'.length).toUpperCase():label;}
-  providerLabel(name: string): string {return name.startsWith('BALLDONTLIE_')?'BALLDONTLIE':name.startsWith('API_SPORTS_')?'API-Sports':name;}
+  providerLabel(name: string): string {
+    switch (name) {
+      case 'API_SPORTS_BASKETBALL': return 'API-Basketball';
+      case 'API_SPORTS_NBA': return 'API-NBA';
+      case 'API_SPORTS_MLB': return 'API-Baseball';
+      default: return name.startsWith('BALLDONTLIE_')?'BALLDONTLIE':name.startsWith('API_SPORTS_')?'API-Sports':name;
+    }
+  }
   providerConfigured(row: SettingView,name: string): boolean {
     const sport=row.section.slice('section.'.length);return this.operation(sport)?.providers?.find(p=>p.name===name)?.configured ?? true;
   }
