@@ -1,0 +1,162 @@
+<section class="trackers" aria-labelledby="trackers-title">
+  <header class="tracker-heading">
+    <h1 id="trackers-title">Seguimientos activos</h1>
+    @if (snapshot()?.consultedAt; as consulted) {
+      <p class="tracker-consulted">
+        Consulta del <time [attr.datetime]="consulted.iso">{{ consulted.day }} · {{ consulted.time }}</time>
+      </p>
+    }
+    <button type="button" class="btn btn-outline-light tracker-refresh"
+            (click)="refresh()" [disabled]="loading()">
+      <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
+      {{ loading() && snapshot() ? 'Actualizando…' : 'Actualizar' }}
+    </button>
+  </header>
+
+  <form [formGroup]="filters" (ngSubmit)="applyFilters()" aria-label="Filtrar seguimientos">
+    <fieldset class="tracker-filters" [disabled]="loading()">
+      <div>
+        <label class="form-label" for="tracking-search">Cliente</label>
+        <div class="tracker-search">
+          <i class="bi bi-search" aria-hidden="true"></i>
+          <input class="form-control" id="tracking-search" type="search" formControlName="search"
+                 placeholder="Usuario o correo" maxlength="120" autocomplete="off">
+        </div>
+      </div>
+      <div>
+        <label class="form-label" for="tracking-sport">Deporte</label>
+        <select class="form-select" id="tracking-sport" formControlName="sport">
+          <option value="">Todos los deportes</option>
+          @for (sport of sports; track sport[0]) {
+            <option [value]="sport[0]">{{ sport[1] }}</option>
+          }
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary tracker-submit">Buscar</button>
+    </fieldset>
+  </form>
+
+  @if (failed() && snapshot()) {
+    <div class="tracker-warning">
+      <span role="alert"><i class="bi bi-exclamation-circle" aria-hidden="true"></i>
+        Error al actualizar. Se muestran los últimos datos recibidos.
+      </span>
+      <button type="button" class="btn btn-outline-light btn-sm" (click)="refresh()">Reintentar</button>
+    </div>
+  }
+
+  <section aria-label="Resultados" [attr.aria-busy]="loading()">
+    @if (snapshot(); as data) {
+      @if (data.content.length) {
+        <div class="tracker-results">
+          <header class="tracker-results-heading">
+            <h2 aria-live="polite">{{ data.totalElements }} {{ data.totalElements === 1 ? 'seguimiento activo' : 'seguimientos activos' }}</h2>
+            <span>{{ pageSize }} por página</span>
+          </header>
+          <table role="table" class="tracker-table" aria-label="Seguimientos activos">
+            <thead role="rowgroup">
+              <tr role="row">
+                @for (column of columns; track column) {
+                  <th role="columnheader" scope="col">{{ column }}</th>
+                }
+              </tr>
+            </thead>
+            <tbody role="rowgroup">
+              @for (row of data.content; track row.id) {
+                <tr role="row">
+                  <td role="cell" class="tracker-client">
+                    <strong>{{ row.client }}</strong>
+                    @if (row.google) {
+                      <small class="tracker-secondary tracker-google">Cuenta de Google</small>
+                    } @else if (row.email) {
+                      <small class="tracker-secondary">{{ row.email }}</small>
+                    }
+                  </td>
+                  <td role="cell" class="tracker-match">
+                    <strong>{{ row.match }}</strong>
+                    <small class="tracker-secondary">{{ row.competition }}</small>
+                  </td>
+                  <td role="cell" class="tracker-score" [class.missing]="!row.hasScore">
+                    <strong>{{ row.score }}</strong>
+                    @if (row.progress) {
+                      <small class="tracker-secondary">{{ row.progress }}</small>
+                    }
+                    @if (row.stale) {
+                      <small class="tracker-secondary">Datos desactualizados</small>
+                    }
+                  </td>
+                  <td role="cell" class="tracker-selection">
+                    <strong>{{ row.pick.market }}</strong>
+                    @if (row.pick.selection) {
+                      <span class="tracker-selection-separator" aria-hidden="true"> · </span>
+                      <small class="tracker-secondary">{{ row.pick.selection }}</small>
+                    }
+                  </td>
+                  <td role="cell" class="tracker-state">
+                    <span class="tracker-badge" [attr.data-tone]="row.status.tone">{{ row.status.text }}</span>
+                  </td>
+                  <td role="cell" class="tracker-updated">
+                    @if (row.updated; as updated) {
+                      <time [attr.datetime]="updated.iso">
+                        {{ updated.day }}<span class="tracker-time-separator" aria-hidden="true"> · </span>
+                        <span class="tracker-time">{{ updated.time }}</span>
+                      </time>
+                    } @else {
+                      —
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+          <nav class="tracker-pagination" aria-label="Páginas de seguimientos">
+            <span>Página {{ data.page + 1 }} de {{ data.totalPages }}</span>
+            <div>
+              <button type="button" class="btn btn-outline-light btn-sm"
+                      (click)="changePage(data.page - 1)" [disabled]="loading() || data.page === 0">
+                <i class="bi bi-chevron-left" aria-hidden="true"></i> Anterior
+              </button>
+              <button type="button" class="btn btn-outline-light btn-sm"
+                      (click)="changePage(data.page + 1)"
+                      [disabled]="loading() || data.page >= data.totalPages - 1">
+                Siguiente <i class="bi bi-chevron-right" aria-hidden="true"></i>
+              </button>
+            </div>
+          </nav>
+        </div>
+      } @else {
+        <div class="tracker-feedback">
+          <i [class]="data.filtered ? 'bi bi-search' : 'bi bi-activity'" aria-hidden="true"></i>
+          @if (data.filtered) {
+            <h2 role="status">Sin coincidencias</h2>
+            <p>Prueba con otro usuario, correo o deporte.</p>
+            <button type="button" class="btn btn-outline-light" (click)="clearFilters()"
+                    [disabled]="loading()">Limpiar filtros</button>
+          } @else {
+            <h2 role="status">No hay seguimientos activos</h2>
+          }
+        </div>
+      }
+    } @else if (loading()) {
+      <div class="tracker-results tracker-loading" role="status">
+        <div class="tracker-results-heading">Cargando seguimientos…</div>
+        <div class="tracker-loading-columns" aria-hidden="true">
+          @for (column of columns; track column) {
+            <span>{{ column }}</span>
+          }
+        </div>
+        @for (placeholder of [0, 1, 2]; track placeholder) {
+          <div class="tracker-skeleton" aria-hidden="true">
+            @for (column of columns; track column) { <span></span> }
+          </div>
+        }
+      </div>
+    } @else if (failed()) {
+      <div class="tracker-feedback tracker-feedback-error">
+        <i class="bi bi-exclamation-circle" aria-hidden="true"></i>
+        <h2 role="alert">No se pudieron cargar los seguimientos</h2>
+        <button type="button" class="btn btn-outline-light" (click)="refresh()">Reintentar</button>
+      </div>
+    }
+  </section>
+</section>

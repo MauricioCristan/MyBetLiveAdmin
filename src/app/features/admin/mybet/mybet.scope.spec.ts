@@ -27,19 +27,27 @@ describe('MyBet management navigation and forms',()=>{
  afterEach(()=>http.verify());
  function navigation(){
   const root=harness.routeNativeElement!;
-  expect(Array.from(root.querySelectorAll('aside .list-group a .sidebar-text'),a=>a.textContent?.trim())).toEqual(['Resumen','Clientes','Suscripciones','Deportes','Ligas','Planes','Operación de APIs','Publicidad','Configuración']);
+  expect(Array.from(root.querySelectorAll('aside .list-group a .sidebar-text'),a=>a.textContent?.trim())).toEqual(['Resumen','Clientes','Seguimientos','Suscripciones','Deportes','Ligas','Planes','Operación de APIs','Publicidad','Configuración']);
   expect(root.querySelector('nav.tabs')).toBeNull();
-  expect(root.querySelector('a[href="/admin/mybet/bets"]')).toBeNull();
   http.expectNone(request=>request.url.includes('/tracking/')||request.url===base+'/bets'||request.url===base+'/overview');
  }
  async function settle(){await harness.fixture.whenStable();harness.detectChanges();}
- it.each([['','/admin/mybet'],['/overview','/admin/mybet'],['/bets','/admin/mybet'],['/football','/admin/mybet/leagues'],['/baseball','/admin/mybet/leagues']])
+ it.each([['','/admin/mybet'],['/overview','/admin/mybet'],['/football','/admin/mybet/leagues'],['/baseball','/admin/mybet/leagues']])
  ('routes /admin/mybet%s to an administrative page',async(suffix,target)=>{
   await harness.navigateByUrl('/admin/mybet'+suffix);expect(TestBed.inject(Router).url).toBe(target);
   if(target.endsWith('leagues')){http.expectOne(base+'/leagues').flush([{id:'SOCCER:262',sportCode:'SOCCER',externalId:262,name:'Liga MX',country:'Mexico',enabled:true,version:0}]);http.expectOne(base+'/sports').flush(sports);}
   else if(target==='/admin/mybet')http.expectOne(base+'/dashboard').flush(dashboard);
   else if(target.endsWith('sports'))http.expectOne(base+'/sports').flush(sports);
   await settle();navigation();
+ });
+ it('opens the tracking section with its own protected request and active sidebar',async()=>{
+  await harness.navigateByUrl('/admin/mybet/bets');
+  http.expectOne(base+'/bets?page=0&size=20&activeOnly=true').flush({content:[],page:0,totalPages:0,totalElements:0});
+  await settle();navigation();
+  const root=harness.routeNativeElement!;
+  expect(root.querySelector('h1')?.textContent).toBe('Seguimientos activos');
+  expect(root.querySelector('aside a.active')?.getAttribute('href')).toBe('/admin/mybet/bets');
+  http.expectNone(base+'/dashboard');
  });
  it('loads administrative metrics and expiration links and refreshes its snapshot',async()=>{
   await harness.navigateByUrl('/admin/mybet');http.expectOne(base+'/dashboard').flush(dashboard);await settle();navigation();

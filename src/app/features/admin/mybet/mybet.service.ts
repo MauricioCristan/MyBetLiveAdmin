@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../enviroment/environment';
+import type { AdminTracker, TrackingFilters } from './mybet-tracking.models';
 export interface Page<T> { content:T[]; page:number; totalPages:number; totalElements:number; }
 export interface Plan {
  id:string; code:string; name:string; description:string; published:boolean; playProductId:string|null;
@@ -12,6 +13,9 @@ export interface Subscription {
  verifiedAt:string|null; active:boolean; note:string|null; version:number;
 }
 export interface Customer { id:string; username:string; email:string|null; enabled:boolean; plan:Plan; }
+export function clientDisplayName({username,email}:Pick<Customer,'username'|'email'>) {
+ return username.startsWith('google_') && email ? email : username;
+}
 export interface Dashboard {
  generatedAt:string; expiryWindowDays:number; billingEnabled:boolean;
  clients:{total:number;enabled:number;disabled:number;free:number;premium:number};
@@ -54,6 +58,11 @@ export class MyBetService {
  saveLeague(value:Omit<ManagedLeague,'id'>,id:string|null){return id?this.http.put<ManagedLeague>(this.base+'/leagues/'+encodeURIComponent(id),value):this.http.post<ManagedLeague>(this.base+'/leagues',value);}
  clientRole(){return this.http.get<{id:string;label:string}>(this.base+'/client-role');}
  clients(page:number,search:string){return this.http.get<Page<Customer>>(this.base+'/clients',{params:{page,search}});}
+ activeTrackers(page: number, size: number, { search, sport }: TrackingFilters) {
+  return this.http.get<Page<AdminTracker>>(this.base + '/bets', {
+   params: { page, size, activeOnly: true, ...(search && { search }), ...(sport && { sport }) },
+  });
+ }
  client(id:string){return this.http.get<Customer>(this.base+'/clients/'+id);}
  subscriptions(page:number){return this.http.get<Page<Subscription>>(this.base+'/subscriptions',{params:{page}});}
  subscription(id:string){return this.http.get<Subscription>(this.base+'/subscriptions/'+id);}

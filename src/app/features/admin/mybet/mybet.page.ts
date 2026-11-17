@@ -3,7 +3,7 @@ import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink, RouterLinkActive } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
-import { Customer, Dashboard, ManagedLeague, ManagedSport, MyBetService, Page, Plan, Subscription } from './mybet.service';
+import { clientDisplayName, Customer, Dashboard, ManagedLeague, ManagedSport, MyBetService, Page, Plan, Subscription } from './mybet.service';
 
 @Component({standalone:true,selector:'app-mybet',imports:[CommonModule,FormsModule,RouterLink,RouterLinkActive],templateUrl:'./mybet.page.html',styleUrl:'./mybet.page.scss'})
 export class MyBetPage {
@@ -30,7 +30,7 @@ export class MyBetPage {
    }
   }catch(e:any){this.error.set(e?.error?.message||'No se pudo completar la operación.');}finally{this.busy.set(false);}
  }
- clientLabel(client:Customer){return client.username.startsWith('google_')&&client.email?client.email:client.username;}
+ readonly clientLabel=clientDisplayName;
  sportName(code:string){return this.sports().find(s=>s.code===code)?.name??code;}
  filteredSports(){const search=this.search.trim().toLowerCase();return this.sports().filter(s=>!search||(s.name+' '+s.code).toLowerCase().includes(search));}
  filteredLeagues(){const search=this.search.trim().toLowerCase();return this.leagues().filter(l=>(!this.sportFilter||l.sportCode===this.sportFilter)&&(!search||(l.name+' '+l.country).toLowerCase().includes(search)));}

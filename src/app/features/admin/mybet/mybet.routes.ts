@@ -12,8 +12,9 @@ export const MYBET_ROUTES: Routes = [
  ...[['','home'],['clients','clients'],['subscriptions/plans','plans'],['subscriptions','subscriptions'],['sports','sports'],['leagues','leagues']].map(([path,section])=>({
   path:'mybet'+(path?'/'+path:''),pathMatch:'full' as const,canActivate:[myBetAdminGuard],data:{section},loadComponent:()=>import('./mybet.page').then(m=>m.MyBetPage)
  })),
+ {path:'mybet/bets',pathMatch:'full',canActivate:[myBetAdminGuard],loadComponent:()=>import('./mybet-tracking.page').then(m=>m.MyBetTrackingPage)},
  {path:'mybet/football',pathMatch:'full',redirectTo:'mybet/leagues'},
  {path:'mybet/baseball',pathMatch:'full',redirectTo:'mybet/leagues'},
- ...['overview','bets'].map(path=>({path:'mybet/'+path,pathMatch:'full' as const,redirectTo:'mybet'})),
+ {path:'mybet/overview',pathMatch:'full',redirectTo:'mybet'},
  {path:'mybet/plans',pathMatch:'full',redirectTo:'mybet/subscriptions/plans'},
 ];

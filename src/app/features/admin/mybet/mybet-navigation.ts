@@ -1,6 +1,7 @@
 export const MYBET_NAVIGATION = [
  {path:'/admin/mybet',label:'Resumen',icon:'bi-grid',exact:true,description:''},
  {path:'/admin/mybet/clients',label:'Clientes',icon:'bi-people',exact:false,description:'Cuentas, datos de contacto y acceso a la plataforma.'},
+ {path:'/admin/mybet/bets',label:'Seguimientos',icon:'bi-activity',exact:true,description:'Partidos y selecciones que siguen activos.'},
  {path:'/admin/mybet/subscriptions',label:'Suscripciones',icon:'bi-credit-card',exact:false,description:'Accesos, vencimientos y origen de las suscripciones.'},
  {path:'/admin/mybet/sports',label:'Deportes',icon:'bi-trophy',exact:false,description:'Disponibilidad y preparación de nuevos deportes.'},
  {path:'/admin/mybet/leagues',label:'Ligas',icon:'bi-list-ul',exact:false,description:'Competiciones por deporte y publicación en la app.'},
